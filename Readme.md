@@ -1,15 +1,16 @@
-# One Pager For My Idea
+# daydream
 
-## What I am building
+A new Flutter project.
 
-I am building daydream, a story journal app where user can have basic write what's going on in their life at the point anything maybe I have to go La, I wanna build a startup, I don't wanna study anymore, but I have to study, and stuff then with one click it generates a simple summary is a journal way (or we can have options), and then once with 10-5 days user can go to story mode and read their journal in a story way
+## Getting Started
 
-we're gonna first take the user input on how user writes, and we're gonna store it
+This project is a starting point for a Flutter application.
 
-## Services
+A few resources to get you started if this is your first Flutter project:
 
-- Auth using Firebase
-- Journal Text Editor
-- Linux Chatgpt API
-- Story Mode
-- Journal Mode
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
