@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../components/common/instrument_text.dart';
@@ -262,6 +263,14 @@ class _SignupPageState extends State<SignupPage> {
 
       try {
         // Create user account
+        final userCred = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+
+        // update user profile
+        await userCred.user?.updateDisplayName(_nameController.text.trim());
 
         // Show success message
         if (mounted) {
@@ -275,6 +284,31 @@ class _SignupPageState extends State<SignupPage> {
 
           // Navigate to home page
           Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
+        }
+      } on FirebaseAuthException catch (e) {
+        // Handle specific Firebase Auth errors
+        String message;
+        switch (e.code) {
+          case 'email-already-in-use':
+            message = 'Email already in use. Please try another.';
+            break;
+          case 'weak-password':
+            message = 'Password is too weak. Please choose a stronger one.';
+            break;
+          case 'invalid-email':
+            message = 'Invalid email address. Please enter a valid one.';
+            break;
+          default:
+            message = 'An unknown error occurred. Please try again.';
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message, style: GoogleFonts.dmSans()),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
         }
       } catch (e) {
         // Handle generic errors

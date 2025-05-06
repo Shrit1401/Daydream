@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "197010837233",
+    "project_id": "daydream-43c35",
+    "storage_bucket": "daydream-43c35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197010837233:android:a898ab3a575bb7d74a6350",
+        "android_client_info": {
+          "package_name": "com.example.daydream"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "197010837233-3pf8je9pmq9rplhekun0esv3gmslapnv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsL7r6q8qSY8hLHX0pUj-edCK-TYK6yzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "197010837233-3pf8je9pmq9rplhekun0esv3gmslapnv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "197010837233-9iko4q1gidbhp3fj7a3kcjnal3rjp84v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.daydream"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
