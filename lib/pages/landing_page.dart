@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../components/instrument_text.dart';
+import '../utils/routes.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -38,7 +39,7 @@ class LandingPage extends StatelessWidget {
                     context: context,
                     text: 'Login',
                     onPressed: () {
-                      // Add login functionality
+                      Navigator.pushNamed(context, DreamRoutes.loginRoute);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -47,7 +48,7 @@ class LandingPage extends StatelessWidget {
                     context: context,
                     text: 'Signup',
                     onPressed: () {
-                      // Add signup functionality
+                      Navigator.pushNamed(context, DreamRoutes.signupRoute);
                     },
                   ),
                   const Spacer(),
