@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:daydream/components/instrument_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -11,28 +14,12 @@ class SingleNote extends StatefulWidget {
 }
 
 class _SingleNoteState extends State<SingleNote> {
-  final _dateController = TextEditingController(text: '18 / 11 / 22');
-  final _contentController = TextEditingController(
-    text:
-        'we have started the analytics phase. we need test access to the app to try out the existing features.\n\nwe need to coordinate a call with management to understand how soon we can start wireframes.\n\nask the client to collect positive and negative references that will help in the work on the concept.',
-  );
+  final date = "18 May 2025";
 
-  QuillController _controller = QuillController.basic();
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize with some basic formatting options
-    _controller = QuillController(
-      document: Document()..insert(0, _contentController.text),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-  }
+  final QuillController _controller = QuillController.basic();
 
   @override
   void dispose() {
-    _dateController.dispose();
-    _contentController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -54,17 +41,28 @@ class _SingleNoteState extends State<SingleNote> {
                     icon: const Icon(Icons.arrow_back_ios_new, size: 22),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  Text(
-                    _dateController.text,
-                    style: GoogleFonts.dmSans(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
+                  InstrumentText(date, fontSize: 32),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.undo, size: 22),
+                        tooltip: 'Undo',
+                        onPressed: () {
+                          _controller.undo();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.redo, size: 22),
+                        tooltip: 'Redo',
+                        onPressed: () {
+                          _controller.redo();
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              // Main editor with floating toolbar at the bottom
               Expanded(
                 child: Stack(
                   children: [
@@ -139,36 +137,51 @@ class _SingleNoteState extends State<SingleNote> {
                           child: Material(
                             elevation: 16,
                             borderRadius: BorderRadius.circular(18),
-                            color: Colors.white.withOpacity(0.85),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 12,
+                            color: Colors.white,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(18),
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.4),
+                                  width: 1,
+                                ),
                               ),
-                              child: QuillSimpleToolbar(
-                                controller: _controller,
-                                config: QuillSimpleToolbarConfig(
-                                  showBoldButton: true,
-                                  showItalicButton: true,
-                                  showUnderLineButton: true,
-                                  showStrikeThrough: true,
-                                  showListBullets: true,
-                                  showListCheck: true,
-                                  showListNumbers: true,
-                                  showHeaderStyle: true,
-                                  showClearFormat: true,
-                                  showFontFamily: false,
-                                  showSearchButton: false,
-                                  showCodeBlock: false,
-                                  showInlineCode: false,
-                                  showQuote: false,
-                                  showIndent: false,
-                                  showLink: false,
-                                  showBackgroundColorButton: false,
-                                  showColorButton: false,
-                                  showSubscript: false,
-                                  showSuperscript: false,
-                                  multiRowsDisplay: false,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                  horizontal: 12,
+                                ),
+                                child: QuillSimpleToolbar(
+                                  controller: _controller,
+                                  config: QuillSimpleToolbarConfig(
+                                    color: Colors.white,
+                                    showBoldButton: true,
+                                    showItalicButton: false,
+                                    showUnderLineButton: false,
+                                    showStrikeThrough: false,
+                                    showListBullets: true,
+                                    showListCheck: false,
+                                    showListNumbers: false,
+                                    showHeaderStyle: true,
+                                    showClearFormat: false,
+                                    showFontFamily: false,
+                                    showSearchButton: false,
+                                    showCodeBlock: false,
+                                    showInlineCode: false,
+                                    showQuote: false,
+                                    showIndent: false,
+                                    showLink: false,
+                                    showBackgroundColorButton: false,
+                                    showUndo: false,
+                                    showRedo: false,
+                                    showColorButton: false,
+                                    showSubscript: false,
+                                    showSuperscript: false,
+                                    showFontSize: false,
+                                    multiRowsDisplay: false,
+                                    toolbarSize: 15 * 2,
+                                  ),
                                 ),
                               ),
                             ),
