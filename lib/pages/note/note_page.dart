@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 class SingleNote extends StatefulWidget {
   const SingleNote({super.key});
@@ -10,19 +11,28 @@ class SingleNote extends StatefulWidget {
 
 class _SingleNoteState extends State<SingleNote> {
   final _dateController = TextEditingController(text: '18 / 11 / 22');
-  final _tagController = TextEditingController(text: '#work');
-  final _titleController = TextEditingController(text: 'what to discuss');
   final _contentController = TextEditingController(
     text:
         'we have started the analytics phase. we need test access to the app to try out the existing features.\n\nwe need to coordinate a call with management to understand how soon we can start wireframes.\n\nask the client to collect positive and negative references that will help in the work on the concept.',
   );
 
+  QuillController _controller = QuillController.basic();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with some basic formatting options
+    _controller = QuillController(
+      document: Document()..insert(0, _contentController.text),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+  }
+
   @override
   void dispose() {
     _dateController.dispose();
-    _tagController.dispose();
-    _titleController.dispose();
     _contentController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -52,33 +62,104 @@ class _SingleNoteState extends State<SingleNote> {
                   ),
                 ],
               ),
-              TextField(
-                controller: _titleController,
-                style: GoogleFonts.dmSans(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              const SizedBox(height: 8),
+              // Custom toolbar with essential formatting options
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
+                child: QuillSimpleToolbar(
+                  controller: _controller,
+                  config: QuillSimpleToolbarConfig(
+                    // Basic text formatting
+                    showBoldButton: true,
+                    showItalicButton: true,
+                    showUnderLineButton: true,
+                    showStrikeThrough: true,
+                    // Lists for organizing thoughts
+                    showListBullets: true,
+                    showListCheck: true,
+                    showListNumbers: true,
+                    // Headers for structure
+                    showHeaderStyle: true,
+                    // Clear formatting
+                    showClearFormat: true,
+                    // Disable unnecessary features
+                    showFontFamily: false,
+                    showSearchButton: false,
+                    showCodeBlock: false,
+                    showInlineCode: false,
+                    showQuote: false,
+                    showIndent: false,
+                    showLink: false,
+                    showBackgroundColorButton: false,
+                    showColorButton: false,
+                    // Remove math-related buttons
+                    showSubscript: false,
+                    showSuperscript: false,
+                    // Customize toolbar appearance
+                    multiRowsDisplay: false,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
+              // Main editor
               Expanded(
-                child: TextField(
-                  controller: _contentController,
-                  maxLines: null,
-                  expands: true,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 16,
-                    color: Colors.black87,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
+                  child: QuillEditor.basic(
+                    controller: _controller,
+                    config: QuillEditorConfig(
+                      placeholder: 'Write your thoughts freely...',
+                      customStyles: DefaultStyles(
+                        paragraph: DefaultTextBlockStyle(
+                          GoogleFonts.dmSans(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                        h1: DefaultTextBlockStyle(
+                          GoogleFonts.dmSans(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                        h2: DefaultTextBlockStyle(
+                          GoogleFonts.dmSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                        h3: DefaultTextBlockStyle(
+                          GoogleFonts.dmSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

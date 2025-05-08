@@ -1,16 +1,53 @@
-# daydream
+# ✨ What I’m Building
 
-A new Flutter project.
+**Daydream** is a story journal app where users casually write what’s going on in their life — anything from  
+_“I have to go to LA”_, _“I want to build a startup”_, to _“I don’t want to study anymore, but I have to.”_
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+# 📝 How It Works
 
-A few resources to get you started if this is your first Flutter project:
+### 1. Raw Expression
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Users type freely in their own voice — unfiltered, chaotic, honest.  
+It’s not about grammar or coherence. It’s about what’s on your mind.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 2. One-Click Journal Summary
+
+With one click, Daydream generates a journal-style summary. Users can choose the tone:
+
+- ✍️ **Reflective**
+- 🎭 **Poetic**
+- 🧠 **Minimal**
+- 😂 **Humorous**
+- 💬 **Conversational**
+
+### 3. Story Mode (Every 5–10 Days)
+
+Daydream transforms scattered entries into a cohesive, readable life narrative.  
+This isn’t just logging events — it’s reliving your story, chapter by chapter.
+
+### 4. Emotion Analysis
+
+Each entry is analyzed using AI for:
+
+- **Core emotions** (joy, sadness, anxiety, hope, etc.)
+- **Mood intensity**
+- **Emotional trends over time**
+
+These insights feed into the summaries and stories.  
+If your week was anxious but ended on a hopeful note, the tone reflects that naturally.
+
+### 5. Mood Graphs & Visual Insights
+
+Daydream visualizes your emotional journey:
+
+- 📈 **Mood Over Time** – Line chart showing daily highs/lows
+- 🎨 **Emotion Distribution** – Pie or bar chart for emotion categories
+- ⏳ **Change Over Time** – Trends in tone, energy, clarity, etc.
+- 🌗 **Moon-Like Cycles** – Weekly “emotional weather” forecasts
+
+### 6. Adaptive Personalization
+
+Over time, Daydream learns your writing style and emotional vocabulary.  
+Summaries and stories start to sound more like you — because they’re based on your patterns.
