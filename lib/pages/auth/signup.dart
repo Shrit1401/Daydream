@@ -282,8 +282,9 @@ class _SignupPageState extends State<SignupPage> {
             ),
           );
 
-          // Navigate to home page
-          Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
+          if (FirebaseAuth.instance.currentUser != null) {
+            Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
+          }
         }
       } on FirebaseAuthException catch (e) {
         // Handle specific Firebase Auth errors
@@ -335,34 +336,11 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void _handleGoogleSignup() {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Here you would implement Google sign-up logic
-    // This would typically use Firebase Auth or another authentication service
-
-    // Simulate a delay for demonstration purposes
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Show success message
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Google sign-up successful!',
-            style: GoogleFonts.dmSans(),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-        ),
+        SnackBar(content: Text('Google sign-in not made by me hehe!')),
       );
-
-      // Navigate to home page
-      Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
-    });
+    }
   }
 
   Widget _buildTextField({

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../components/common/instrument_text.dart';
 import '../../utils/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -260,10 +261,55 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        // Use signInWithEmailAndPassword with proper error handling
+        // Sign in with email and password
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
 
         if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Welcome back Storyteller!',
+                style: GoogleFonts.dmSans(),
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          // Navigate to home page
           Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
+        }
+      } on FirebaseAuthException catch (e) {
+        // Handle specific Firebase Auth errors
+        String message;
+        switch (e.code) {
+          case 'user-not-found':
+            message = 'No user found with this email.';
+            break;
+          case 'wrong-password':
+            message = 'Wrong password provided.';
+            break;
+          case 'invalid-email':
+            message = 'Invalid email address.';
+            break;
+          case 'user-disabled':
+            message = 'This account has been disabled.';
+            break;
+          default:
+            message = "Wrong email or password";
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message, style: GoogleFonts.dmSans()),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
         }
       } catch (e) {
         // Handle generic errors
@@ -275,7 +321,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: GoogleFonts.dmSans(),
               ),
               backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3100),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -290,49 +336,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleGoogleLogin() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Initialize GoogleSignIn
-
-      // Show success message and navigate if mounted
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Google sign-in successful!',
-              style: GoogleFonts.dmSans(),
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-
-        // Navigate to home page
-        Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
-      }
-    } catch (e) {
-      // Handle errors
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Google sign-in failed: ${e.toString()}',
-              style: GoogleFonts.dmSans(),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google sign-in not made by me hehe!')),
+      );
     }
   }
 
