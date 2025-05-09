@@ -1,21 +1,20 @@
-import 'package:flutter_quill/quill_delta.dart';
-
 class Note {
   final String date;
-  final Delta content;
+  final Map<dynamic, dynamic> content;
   final String plainContent;
   final String id;
-  final bool isGenerate;
+  final bool isGenerated;
   const Note({
     required this.date,
     required this.content,
     required this.plainContent,
     required this.id,
-    required this.isGenerate,
+    required this.isGenerated,
+    required String note,
   });
 }
 
-class User {
+class UserType {
   final String name;
   final String email;
   final String uid;
@@ -23,7 +22,7 @@ class User {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const User({
+  const UserType({
     required this.name,
     required this.email,
     required this.uid,

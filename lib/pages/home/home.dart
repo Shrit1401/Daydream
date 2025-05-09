@@ -1,10 +1,48 @@
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/components/home/note_card.dart';
+import 'package:daydream/utils/types.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:daydream/utils/routes.dart';
+
+final List<Note> notes = [
+  Note(
+    date: '8th May 2025',
+    plainContent: 'going to hrkl class \n Hello shrit how are you?',
+    content: {},
+    id: '1',
+    isGenerated: false,
+    note: 'going to class \n Hello shrit how are you?',
+  ),
+  Note(
+    date: '8th May 2025',
+    plainContent: 'going to class \n Hello shrit how are you?',
+    content: {},
+
+    id: '2',
+    isGenerated: false,
+    note: 'going to class \n Hello shrit how are you?',
+  ),
+  Note(
+    date: '8th May 2025',
+    plainContent: 'going to class \n Hello shrit how are you?',
+    content: {},
+
+    id: '3',
+    isGenerated: false,
+    note: 'going to class \n Hello shrit how are you?',
+  ),
+  Note(
+    date: '8th May 2025',
+    plainContent: 'going to class \n Hello shrit how are you?',
+    content: {},
+
+    id: '4',
+    isGenerated: false,
+    note: 'going to class \n Hello shrit how are you?',
+  ),
+];
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -13,13 +51,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
     final String userName = user?.displayName ?? 'Storyteller';
-    final List<Map<String, String>> cards = List.generate(
-      8,
-      (index) => {
-        'date': '8th May 2025',
-        'note': 'going to class \n Hello shrit how are you?',
-      },
-    );
 
     Future<void> showPrivacyDialog(BuildContext context) async {
       await showCupertinoDialog(
@@ -141,16 +172,10 @@ class HomePage extends StatelessWidget {
                     mainAxisSpacing: 12,
                     childAspectRatio: 0.9,
                   ),
-                  itemCount: cards.length,
+                  itemCount: notes.length,
                   itemBuilder: (context, index) {
-                    final card = cards[index];
-                    return NoteCard(
-                      date: card['date']!,
-                      note: card['note']!,
-                      onView: () {
-                        Navigator.pushNamed(context, DreamRoutes.noteRoute);
-                      },
-                    );
+                    final note = notes[index];
+                    return NoteCard(note: note);
                   },
                 ),
               ),

@@ -1,18 +1,13 @@
+import 'package:daydream/utils/routes.dart';
+import 'package:daydream/utils/types.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/instrument_text.dart';
 
 class NoteCard extends StatelessWidget {
-  final String date;
-  final String note;
-  final VoidCallback? onView;
+  final Note note;
 
-  const NoteCard({
-    super.key,
-    required this.date,
-    required this.note,
-    this.onView,
-  });
+  const NoteCard({super.key, required this.note});
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +35,10 @@ class NoteCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  InstrumentText(date, fontSize: 18),
+                  InstrumentText(note.date, fontSize: 18),
                   const SizedBox(height: 6),
                   Text(
-                    note,
+                    note.plainContent,
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -71,7 +66,9 @@ class NoteCard extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                onPressed: onView ?? () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, DreamRoutes.noteRoute);
+                },
                 child: Text(
                   'View →',
                   style: GoogleFonts.dmSans(
