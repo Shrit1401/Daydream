@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:daydream/components/instrument_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -79,8 +77,9 @@ class _SingleNoteState extends State<SingleNote> {
                             customStyles: DefaultStyles(
                               paragraph: DefaultTextBlockStyle(
                                 GoogleFonts.dmSans(
-                                  fontSize: 16,
+                                  fontSize: 20,
                                   color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
                                 ),
                                 const HorizontalSpacing(0, 0),
                                 const VerticalSpacing(0, 0),
@@ -89,7 +88,7 @@ class _SingleNoteState extends State<SingleNote> {
                               ),
                               h1: DefaultTextBlockStyle(
                                 GoogleFonts.dmSans(
-                                  fontSize: 24,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
@@ -100,7 +99,7 @@ class _SingleNoteState extends State<SingleNote> {
                               ),
                               h2: DefaultTextBlockStyle(
                                 GoogleFonts.dmSans(
-                                  fontSize: 20,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
@@ -111,7 +110,7 @@ class _SingleNoteState extends State<SingleNote> {
                               ),
                               h3: DefaultTextBlockStyle(
                                 GoogleFonts.dmSans(
-                                  fontSize: 18,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
