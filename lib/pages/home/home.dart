@@ -6,41 +6,59 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+DateTime fakeToday = DateTime.now(); // Use real today
+
 final List<Note> notes = [
   Note(
-    date: '8th May 2025',
-    plainContent: 'going to hrkl class \n Hello shrit how are you?',
-    content: {},
+    date: fakeToday.subtract(const Duration(days: 1)),
+    plainContent: 'Note for the day before fake today.',
+    content: [
+      {'insert': 'This is the note for the day before fake today.\n'},
+      {
+        'insert': 'Task 1\n',
+        'attributes': {'list': 'bullet'},
+      },
+      {
+        'insert': 'Task 2\n',
+        'attributes': {'list': 'bullet'},
+      },
+    ],
+    id: '0',
+    isGenerated: true,
+  ),
+  Note(
+    date: fakeToday,
+    plainContent: 'Note for fake today (yesterday in real time).',
+    content: [
+      {'insert': 'Editable note for fake today!\n'},
+      {
+        'insert': 'Editable bullet 1\n',
+        'attributes': {'list': 'bullet'},
+      },
+      {
+        'insert': 'Editable bullet 2\n',
+        'attributes': {'list': 'bullet'},
+      },
+    ],
     id: '1',
     isGenerated: false,
-    note: 'going to class \n Hello shrit how are you?',
   ),
   Note(
-    date: '8th May 2025',
-    plainContent: 'going to class \n Hello shrit how are you?',
-    content: {},
-
+    date: fakeToday.add(const Duration(days: 1)),
+    plainContent: 'Note for the day after fake today.',
+    content: [
+      {'insert': 'This is the note for the day after fake today.\n'},
+      {
+        'insert': 'Future task 1\n',
+        'attributes': {'list': 'bullet'},
+      },
+      {
+        'insert': 'Future task 2\n',
+        'attributes': {'list': 'bullet'},
+      },
+    ],
     id: '2',
-    isGenerated: false,
-    note: 'going to class \n Hello shrit how are you?',
-  ),
-  Note(
-    date: '8th May 2025',
-    plainContent: 'going to class \n Hello shrit how are you?',
-    content: {},
-
-    id: '3',
-    isGenerated: false,
-    note: 'going to class \n Hello shrit how are you?',
-  ),
-  Note(
-    date: '8th May 2025',
-    plainContent: 'going to class \n Hello shrit how are you?',
-    content: {},
-
-    id: '4',
-    isGenerated: false,
-    note: 'going to class \n Hello shrit how are you?',
+    isGenerated: true,
   ),
 ];
 
@@ -175,6 +193,7 @@ class HomePage extends StatelessWidget {
                   itemCount: notes.length,
                   itemBuilder: (context, index) {
                     final note = notes[index];
+
                     return NoteCard(note: note);
                   },
                 ),

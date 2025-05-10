@@ -155,7 +155,12 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              color: Colors.grey.withOpacity(0.5),
+                              color: Colors.grey.withValues(
+                                red: 128,
+                                green: 128,
+                                blue: 128,
+                                alpha: 128,
+                              ),
                             ),
                           ),
                           Padding(
@@ -172,7 +177,12 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              color: Colors.grey.withOpacity(0.5),
+                              color: Colors.grey.withValues(
+                                red: 128,
+                                green: 128,
+                                blue: 128,
+                                alpha: 128,
+                              ),
                             ),
                           ),
                         ],
@@ -194,8 +204,12 @@ class _SignupPageState extends State<SignupPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
                             ),
-                            // ignore: deprecated_member_use
-                            backgroundColor: Colors.white.withOpacity(0.9),
+                            backgroundColor: Colors.white.withValues(
+                              red: 255,
+                              green: 255,
+                              blue: 255,
+                              alpha: 230,
+                            ),
                           ),
                           icon: Image.asset(
                             'images/google.png',
@@ -379,7 +393,12 @@ class _SignupPageState extends State<SignupPage> {
           borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.8),
+        fillColor: Colors.white.withValues(
+          red: 255,
+          green: 255,
+          blue: 255,
+          alpha: 204,
+        ),
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 16,

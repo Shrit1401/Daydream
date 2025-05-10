@@ -1,5 +1,6 @@
-import 'package:daydream/utils/routes.dart';
+import 'package:daydream/pages/note/note_page.dart';
 import 'package:daydream/utils/types.dart';
+import 'package:daydream/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/instrument_text.dart';
@@ -35,10 +36,15 @@ class NoteCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  InstrumentText(note.date, fontSize: 18),
+                  InstrumentText(
+                    '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
+                    fontSize: 24,
+                  ),
                   const SizedBox(height: 6),
                   Text(
-                    note.plainContent,
+                    note.plainContent.length > 70
+                        ? '${note.plainContent.substring(0, 70)}...'
+                        : note.plainContent,
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -67,7 +73,12 @@ class NoteCard extends StatelessWidget {
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.pushNamed(context, DreamRoutes.noteRoute);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SingleNote(note: note),
+                    ),
+                  );
                 },
                 child: Text(
                   'View →',

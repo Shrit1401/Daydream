@@ -1,6 +1,6 @@
 class Note {
-  final String date;
-  final Map<dynamic, dynamic> content;
+  final DateTime date;
+  final List<dynamic> content;
   final String plainContent;
   final String id;
   final bool isGenerated;
@@ -10,7 +10,6 @@ class Note {
     required this.plainContent,
     required this.id,
     required this.isGenerated,
-    required String note,
   });
 }
 
