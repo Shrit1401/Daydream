@@ -1,12 +1,17 @@
-import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/components/home/note_card.dart';
-import 'package:daydream/utils/types.dart';
-import 'package:daydream/utils/database_service.dart';
+import 'package:daydream/components/instrument_text.dart';
+import 'package:daydream/pages/note/note_page.dart';
 import 'package:daydream/pages/settings/settings_page.dart';
+import 'package:daydream/utils/hive/hive_local.dart';
+import 'package:daydream/utils/types/types.dart';
+import 'package:daydream/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,9 +20,11 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  List<Note> notes = [];
-  bool isLoading = true;
+class _HomePageState extends State<HomePage> with RouteAware {
+  List<Note> _notes = [];
+  bool _isLoading = true;
+  bool _isRefreshing = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -25,25 +32,103 @@ class _HomePageState extends State<HomePage> {
     _loadNotes();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when coming back to this page
+    _loadNotes();
+  }
+
   Future<void> _loadNotes() async {
-    setState(() => isLoading = true);
-
-    // Delete all existing notes
-    await DatabaseService.deleteAllNotes();
-
-    // Create a single empty note for today
-    final todayNote = Note(
-      date: DateTime.now(),
-      plainContent: '',
-      content: [],
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      isGenerated: false,
-    );
+    if (!mounted) return;
 
     setState(() {
-      notes = [todayNote];
-      isLoading = false;
+      _isLoading = true;
+      _errorMessage = null;
     });
+
+    try {
+      // Get all notes from Hive
+      final notes = await HiveLocal.getAllNotes();
+
+      // Sort notes by date (newest first)
+      notes.sort((a, b) => b.date.compareTo(a.date));
+
+      if (mounted) {
+        setState(() {
+          _notes = notes;
+          _isLoading = false;
+          _isRefreshing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+          _errorMessage = 'Failed to load notes. Please try again.';
+        });
+      }
+    }
+  }
+
+  Future<void> _navigateToNote(Note note) async {
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    // Fetch the latest note from Hive before navigating
+    final latestNote = await HiveLocal.getNoteById(note.id) ?? note;
+
+    final updatedNote = await Navigator.push<Note>(
+      context,
+      PageRouteBuilder(
+        pageBuilder:
+            (context, animation, secondaryAnimation) =>
+                SingleNote(note: latestNote),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
+
+    if (mounted) {
+      await _loadNotes();
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final noteDate = DateTime(date.year, date.month, date.day);
+
+    if (noteDate == today) {
+      return 'Today';
+    } else if (noteDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMM d, yyyy').format(date);
+    }
   }
 
   Future<void> showPrivacyDialog(BuildContext context) async {
@@ -144,16 +229,6 @@ class _HomePageState extends State<HomePage> {
                                 },
                                 child: const Text('Privacy'),
                               ),
-                              CupertinoActionSheetAction(
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await FirebaseAuth.instance.signOut();
-                                },
-                                child: const Text(
-                                  'Sign Out',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
                             ],
                             cancelButton: CupertinoActionSheetAction(
                               onPressed: () {
@@ -170,24 +245,152 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child:
-                    isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.9,
-                              ),
-                          itemCount: notes.length,
-                          itemBuilder: (context, index) {
-                            final note = notes[index];
-                            return NoteCard(note: note);
-                          },
+              if (_errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: GoogleFonts.dmSans(
+                            color: Colors.red.shade700,
+                            fontSize: 14,
+                          ),
                         ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: _loadNotes,
+                        child: Text(
+                          'Retry',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.red.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child:
+                      _isLoading
+                          ? const Center(
+                            key: ValueKey('loading'),
+                            child: CircularProgressIndicator(),
+                          )
+                          : _notes.isEmpty
+                          ? Center(
+                            key: const ValueKey('empty'),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Every story starts somewhere.',
+
+                                  style: GoogleFonts.instrumentSerif(
+                                    fontSize: 30,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
+                                  // center
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 24),
+                                CupertinoButton(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        CupertinoIcons.add,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Create Today\'s Note',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () async {
+                                    final now = DateTime.now();
+                                    final newNote = Note(
+                                      date: now,
+                                      content: [
+                                        {'insert': AppConstants.helloMessage},
+                                      ],
+                                      plainContent: AppConstants.helloMessage,
+                                      id:
+                                          DateTime.now().millisecondsSinceEpoch
+                                              .toString(),
+                                      isGenerated: false,
+                                    );
+
+                                    await HiveLocal.saveNote(newNote);
+                                    await _loadNotes();
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                          : Stack(
+                            key: const ValueKey('notes'),
+                            children: [
+                              ListView.builder(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                itemCount: _notes.length,
+                                itemBuilder: (context, index) {
+                                  final note = _notes[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Hero(
+                                      tag: 'note-${note.id}',
+                                      child: NoteCard(note: note),
+                                    ),
+                                  );
+                                },
+                              ),
+                              if (_isRefreshing)
+                                Positioned(
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: SizedBox(
+                                    height: 3,
+                                    child: LinearProgressIndicator(
+                                      backgroundColor: Colors.transparent,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.black.withOpacity(0.2),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                ),
               ),
             ],
           ),

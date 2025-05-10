@@ -1,8 +1,11 @@
+import 'package:daydream/utils/hive/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:daydream/utils/database_service.dart';
+import 'package:daydream/utils/types/types.dart';
+import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/components/instrument_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -25,7 +28,7 @@ class SettingsPage extends StatelessWidget {
             CupertinoDialogAction(
               isDestructiveAction: true,
               onPressed: () async {
-                await DatabaseService.deleteAllNotes();
+                await HiveLocal.deleteAllNotes();
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -42,6 +45,13 @@ class SettingsPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -68,12 +78,13 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              leading: Icon(Icons.delete_forever, color: Colors.purple[700]),
               title: Text(
                 'Delete All Notes',
                 style: GoogleFonts.dmSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
+                  color: Colors.purple[700],
                 ),
               ),
               subtitle: Text(
@@ -84,6 +95,33 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               onTap: () => _showDeleteConfirmationDialog(context),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(
+                  CupertinoIcons.square_arrow_right,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  'Sign Out',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () => _signOut(context),
+              ),
             ),
           ],
         ),

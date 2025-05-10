@@ -1,5 +1,5 @@
 import 'package:daydream/pages/note/note_page.dart';
-import 'package:daydream/utils/types.dart';
+import 'package:daydream/utils/types/types.dart';
 import 'package:daydream/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

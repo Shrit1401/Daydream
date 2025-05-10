@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'types.dart';
+import '../types/types.dart';
 
 class DatabaseService {
   static const String notesBoxName = 'notes';

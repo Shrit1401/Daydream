@@ -55,8 +55,8 @@ Summaries and stories start to sound more like you — because they’re based o
 ## A little todo list
 
 - [ ] Create a note for each day automatically
-- [ ] store notes data in local storage
-- [ ] auto save notes in the local storage
+- [x] store notes data in local storage
+- [x] auto save notes in the local storage
 - [ ] as soon as day end generate a story like content also make sure to make the note non-editable after that
 - [ ] have AI in page to generate story using openai
 - [ ] try Tensorflow to generate story locally(if it works have option for the user to choose b/w these two)
