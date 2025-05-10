@@ -36,19 +36,59 @@ class NoteCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  InstrumentText(
-                    '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
-                    fontSize: 24,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InstrumentText(
+                        '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
+                        fontSize: 24,
+                      ),
+                      if (note.isGenerated)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD1B3FF).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                size: 14,
+                                color: Colors.purple.shade700,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Story Generated',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.purple.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    note.plainContent.length > 70
+                    note.plainContent.isEmpty
+                        ? 'Tap to create note...'
+                        : note.plainContent.length > 70
                         ? '${note.plainContent.substring(0, 70)}...'
                         : note.plainContent,
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade800,
+                      color:
+                          note.plainContent.isEmpty
+                              ? Colors.grey.shade500
+                              : Colors.grey.shade800,
                     ),
                   ),
                   const SizedBox(height: 32), // less space for button

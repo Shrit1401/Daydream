@@ -1,94 +1,75 @@
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/components/home/note_card.dart';
 import 'package:daydream/utils/types.dart';
+import 'package:daydream/utils/database_service.dart';
+import 'package:daydream/pages/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-DateTime fakeToday = DateTime.now(); // Use real today
-
-final List<Note> notes = [
-  Note(
-    date: fakeToday.subtract(const Duration(days: 1)),
-    plainContent: 'Note for the day before fake today.',
-    content: [
-      {'insert': 'This is the note for the day before fake today.\n'},
-      {
-        'insert': 'Task 1\n',
-        'attributes': {'list': 'bullet'},
-      },
-      {
-        'insert': 'Task 2\n',
-        'attributes': {'list': 'bullet'},
-      },
-    ],
-    id: '0',
-    isGenerated: true,
-  ),
-  Note(
-    date: fakeToday,
-    plainContent: 'Note for fake today (yesterday in real time).',
-    content: [
-      {'insert': 'Editable note for fake today!\n'},
-      {
-        'insert': 'Editable bullet 1\n',
-        'attributes': {'list': 'bullet'},
-      },
-      {
-        'insert': 'Editable bullet 2\n',
-        'attributes': {'list': 'bullet'},
-      },
-    ],
-    id: '1',
-    isGenerated: false,
-  ),
-  Note(
-    date: fakeToday.add(const Duration(days: 1)),
-    plainContent: 'Note for the day after fake today.',
-    content: [
-      {'insert': 'This is the note for the day after fake today.\n'},
-      {
-        'insert': 'Future task 1\n',
-        'attributes': {'list': 'bullet'},
-      },
-      {
-        'insert': 'Future task 2\n',
-        'attributes': {'list': 'bullet'},
-      },
-    ],
-    id: '2',
-    isGenerated: true,
-  ),
-];
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Note> notes = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
+
+  Future<void> _loadNotes() async {
+    setState(() => isLoading = true);
+
+    // Delete all existing notes
+    await DatabaseService.deleteAllNotes();
+
+    // Create a single empty note for today
+    final todayNote = Note(
+      date: DateTime.now(),
+      plainContent: '',
+      content: [],
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      isGenerated: false,
+    );
+
+    setState(() {
+      notes = [todayNote];
+      isLoading = false;
+    });
+  }
+
+  Future<void> showPrivacyDialog(BuildContext context) async {
+    await showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Privacy Policy'),
+          content: const Text(
+            'Your privacy is important to us. We do not share your data with third parties.',
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
     final String userName = user?.displayName ?? 'Storyteller';
-
-    Future<void> showPrivacyDialog(BuildContext context) async {
-      await showCupertinoDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            title: const Text('Privacy Policy'),
-            content: const Text(
-              'Your privacy is important to us. We do not share your data with third parties.',
-            ),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          );
-        },
-      );
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F3),
@@ -141,11 +122,18 @@ class HomePage extends StatelessWidget {
                         context: context,
                         builder: (BuildContext context) {
                           return CupertinoActionSheet(
-                            title: Text('Account'),
+                            title: const Text('Account'),
                             actions: [
                               CupertinoActionSheetAction(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const SettingsPage(),
+                                    ),
+                                  );
                                 },
                                 child: const Text('Settings'),
                               ),
@@ -183,20 +171,23 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    final note = notes[index];
-
-                    return NoteCard(note: note);
-                  },
-                ),
+                child:
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.9,
+                              ),
+                          itemCount: notes.length,
+                          itemBuilder: (context, index) {
+                            final note = notes[index];
+                            return NoteCard(note: note);
+                          },
+                        ),
               ),
             ],
           ),

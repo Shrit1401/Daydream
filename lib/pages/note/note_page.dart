@@ -5,6 +5,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'dart:ui';
 import 'package:daydream/utils/utils.dart';
 import 'package:daydream/utils/types.dart';
+import 'package:daydream/utils/database_service.dart';
 
 class SingleNote extends StatefulWidget {
   final Note note;
@@ -16,19 +17,48 @@ class SingleNote extends StatefulWidget {
 
 class _SingleNoteState extends State<SingleNote> {
   late final QuillController _controller;
+  late Note _currentNote;
 
   @override
   void initState() {
     super.initState();
+    _currentNote = widget.note;
+
     if (widget.note.content.isNotEmpty) {
+      print('Setting up controller with existing content');
       _controller = QuillController(
         document: Document.fromJson(widget.note.content),
         selection: const TextSelection.collapsed(offset: 0),
       );
     } else {
+      print('Setting up controller with basic document');
       _controller = QuillController.basic();
     }
     _controller.readOnly = widget.note.isGenerated;
+
+    // Add listener for content changes
+    _controller.document.changes.listen(
+      (event) {
+        final content = _controller.document.toPlainText();
+        print('Delta: ${_controller.document.toDelta().toJson()}');
+
+        // Update current note
+        _currentNote = Note(
+          date: widget.note.date,
+          content: _controller.document.toDelta().toJson(),
+          plainContent: content,
+          id: widget.note.id,
+          isGenerated: widget.note.isGenerated,
+        );
+
+        // Save to Hive
+        DatabaseService.saveNote(_currentNote);
+        print('Note saved to Hive');
+      },
+      onError: (error) {
+        print('Error in document listener: $error');
+      },
+    );
 
     if (widget.note.isGenerated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,6 +84,7 @@ class _SingleNoteState extends State<SingleNote> {
 
   @override
   void dispose() {
+    print('Disposing SingleNote');
     _controller.dispose();
     super.dispose();
   }

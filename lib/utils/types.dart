@@ -1,9 +1,24 @@
+import 'package:hive/hive.dart';
+
+part 'types.g.dart';
+
+@HiveType(typeId: 0)
 class Note {
+  @HiveField(0)
   final DateTime date;
+
+  @HiveField(1)
   final List<dynamic> content;
+
+  @HiveField(2)
   final String plainContent;
+
+  @HiveField(3)
   final String id;
+
+  @HiveField(4)
   final bool isGenerated;
+
   const Note({
     required this.date,
     required this.content,
