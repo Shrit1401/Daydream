@@ -43,6 +43,35 @@ class NoteCard extends StatelessWidget {
                         '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
                         fontSize: 24,
                       ),
+                      if (DateTime.now().year == note.date.year &&
+                          DateTime.now().month == note.date.month &&
+                          DateTime.now().day == note.date.day)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orangeAccent.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.today, size: 14, color: Colors.black),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Today',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
                       if (note.isGenerated)
                         Container(
                           padding: const EdgeInsets.symmetric(
