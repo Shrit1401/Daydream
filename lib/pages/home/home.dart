@@ -2,6 +2,7 @@ import 'package:daydream/components/home/note_card.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/pages/note/note_page.dart';
 import 'package:daydream/pages/settings/settings_page.dart';
+import 'package:daydream/utils/ai/ai_story.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
           note.date.day,
         );
         if (!note.isGenerated && noteDate.isBefore(today)) {
-          final updatedNote = await _generateStory(note);
+          final updatedNote = await generateStory(note);
           await HiveLocal.saveNote(updatedNote);
         }
       }
@@ -204,65 +205,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
     await HiveLocal.saveNote(testNote);
     await _loadNotes();
-  }
-
-  Future<Note> _generateStory(Note note) async {
-    final generatedContent = [
-      {
-        'insert':
-            'Generated story for ${DateFormat('MMM d, yyyy').format(note.date)}:\n\n',
-        'attributes': {'header': 1},
-      },
-      {
-        'insert': 'A Tale of Mystery and Discovery\n\n',
-        'attributes': {'header': 2},
-      },
-      {
-        'insert':
-            'Once upon a time, in a distant land, there lived a curious adventurer who loved to explore the unknown.\n\n',
-      },
-      {
-        'insert': 'The Daily Adventures\n',
-        'attributes': {'header': 2},
-      },
-      {
-        'insert':
-            'Every day they would venture further into the mysterious forests that surrounded their village, discovering new plants and creatures that no one had ever seen before. The villagers thought they were strange for spending so much time alone in the woods, but our hero didn\'t mind - they knew that true discovery required dedication and patience.\n\n',
-      },
-      {
-        'insert': 'The Mysterious Archway\n',
-        'attributes': {'header': 2},
-      },
-      {
-        'insert':
-            'One particularly foggy morning, they stumbled upon an ancient stone archway covered in mysterious symbols. The symbols seemed to glow with an otherworldly light, pulsing gently in the mist. As they reached out to touch the weathered stone, they felt a strange tingling sensation course through their body.\n\n',
-      },
-      {
-        'insert': 'The Ethereal Performance\n',
-        'attributes': {'header': 2},
-      },
-      {
-        'insert':
-            'Suddenly, the fog began to swirl and condense, forming shapes and patterns in the air. The adventurer stood transfixed as the mist transformed into ghostly figures that danced and twirled around them. Each figure seemed to tell a different story - tales of long-lost civilizations, magical creatures, and epic battles between good and evil. Hours passed like minutes as they watched the ethereal performance, completely losing track of time.\n\n',
-      },
-      {
-        'insert': 'A New Beginning\n',
-        'attributes': {'header': 2},
-      },
-      {
-        'insert':
-            'When the sun finally began to set, the figures slowly faded away, leaving our hero with an incredible story to tell. But would anyone believe them? The villagers had always been skeptical of their tales, but this time was different. This time they had proof - the ancient symbols had left permanent marks on their hands, marks that glowed with the same mysterious light they had witnessed in the forest.\n\nFrom that day forward, the adventurer\'s life was never the same. They had become a bridge between two worlds, keeper of ancient secrets, and guardian of forgotten tales. And this was just the beginning of their incredible journey into the unknown...',
-      },
-    ];
-
-    return Note(
-      date: note.date,
-      content: generatedContent,
-      plainContent:
-          'Generated story for ${DateFormat('MMM d, yyyy').format(note.date)}',
-      id: note.id,
-      isGenerated: true,
-    );
   }
 
   @override
