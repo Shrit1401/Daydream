@@ -21,7 +21,9 @@ class _SingleNoteState extends State<SingleNote> {
   late Note _currentNote;
   bool _hasUnsavedChanges = false;
   bool _isSaving = false;
+  bool _showCheckmark = false;
   Timer? _saveTimer;
+  Timer? _checkmarkTimer;
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _SingleNoteState extends State<SingleNote> {
     _currentNote = widget.note;
 
     if (widget.note.content.isNotEmpty) {
-      // Ensure the document ends with a newline and proper type casting
       final content = List<Map<String, dynamic>>.from(
         widget.note.content.map((item) => Map<String, dynamic>.from(item)),
       );
@@ -136,53 +137,24 @@ class _SingleNoteState extends State<SingleNote> {
           setState(() {
             _hasUnsavedChanges = false;
             _isSaving = false;
+            _showCheckmark = true;
           });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Note saved',
-                    style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.black,
-              duration: const Duration(seconds: 1),
-            ),
-          );
+          _checkmarkTimer?.cancel();
+          _checkmarkTimer = Timer(const Duration(seconds: 1), () {
+            if (mounted) {
+              setState(() {
+                _showCheckmark = false;
+              });
+            }
+          });
         }
       } catch (e) {
         print('Error saving note: $e');
         if (mounted) {
           setState(() {
             _isSaving = false;
+            _showCheckmark = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.error, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Failed to save note',
-                    style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 2),
-            ),
-          );
         }
       }
     } else {
@@ -195,6 +167,7 @@ class _SingleNoteState extends State<SingleNote> {
   @override
   void dispose() {
     _saveTimer?.cancel();
+    _checkmarkTimer?.cancel();
     // Save any unsaved changes before disposing
     if (_hasUnsavedChanges) {
       _saveNote();
@@ -207,7 +180,8 @@ class _SingleNoteState extends State<SingleNote> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Save any unsaved changes before popping
+        // Disable back navigation while saving
+        if (_isSaving) return false;
         if (_hasUnsavedChanges) {
           await _saveNote();
         }
@@ -226,15 +200,18 @@ class _SingleNoteState extends State<SingleNote> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new, size: 22),
-                      onPressed: () async {
-                        if (_hasUnsavedChanges) {
-                          await _saveNote();
-                        }
-                        if (mounted) {
-                          // Always pop with the current note to trigger a refresh
-                          Navigator.of(context).pop(_currentNote);
-                        }
-                      },
+                      onPressed:
+                          _isSaving
+                              ? null
+                              : () async {
+                                if (_hasUnsavedChanges) {
+                                  await _saveNote();
+                                }
+                                if (mounted) {
+                                  // Always pop with the current note to trigger a refresh
+                                  Navigator.of(context).pop(_currentNote);
+                                }
+                              },
                     ),
                     Expanded(
                       child: Center(
@@ -247,20 +224,41 @@ class _SingleNoteState extends State<SingleNote> {
                     if (!widget.note.isGenerated)
                       Row(
                         children: [
-                          if (_isSaving)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.grey[600]!,
-                                  ),
-                                ),
-                              ),
-                            ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child:
+                                _isSaving
+                                    ? Padding(
+                                      key: const ValueKey('saving'),
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
+                                      ),
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.grey[600]!,
+                                              ),
+                                        ),
+                                      ),
+                                    )
+                                    : _showCheckmark
+                                    ? Padding(
+                                      key: const ValueKey('checkmark'),
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
+                                      ),
+                                      child: Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 22,
+                                      ),
+                                    )
+                                    : const SizedBox(width: 28),
+                          ),
                           IconButton(
                             icon: const Icon(Icons.undo, size: 22),
                             tooltip: 'Undo',

@@ -1,8 +1,6 @@
-import 'package:daydream/utils/hive/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:daydream/utils/types/types.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,10 +46,32 @@ class SettingsPage extends StatelessWidget {
   }
 
   Future<void> _signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      Navigator.of(context).pop();
-    }
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            CupertinoDialogAction(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -65,7 +85,7 @@ class SettingsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new, size: 22),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const InstrumentText('Settings', fontSize: 24),
+        title: const InstrumentText('Settings', fontSize: 28),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
