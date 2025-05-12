@@ -54,7 +54,15 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] as soon as day end generate a story like content also make sure to make the note non-editable after that
 - [x] have AI in page to generate story using openai
 - [ ] add a user in firestore
+  - name, number of notes, email
 - [ ] overdo with the graphs section (make it more informative and useful)
 - [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [ ] try Tensorflow to generate story locally(if it works have option for the user to choose b/w these two)
-- [ ] .... decide after that
+- [ ] having a dark theme
+- [ ] add a option in notes to talk with journal using elevenlabs agent, it should be able to understand user's day and generate required response ($10/month or 50 rupess/month)
+- [ ] add a paywall inorder to access journal analysis page
+- [ ] make a website for this app and add some animation
+- [ ] add a option to share the story on social media (where they say one word about the story)
+- [ ] make sure when user opens the word they belong make it magical with animations
+- [ ] add splash screen icon and app icon
+- [ ] have a nice onboarding screen for the app

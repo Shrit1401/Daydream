@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -116,7 +117,31 @@ class SettingsPage extends StatelessWidget {
               ),
               onTap: () => _showDeleteConfirmationDialog(context),
             ),
-            const Spacer(),
+            ListTile(
+              leading: Icon(Icons.person, color: Colors.green[700]),
+              title: Text(
+                'Check Out the Dev',
+                style: GoogleFonts.dmSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green[700],
+                ),
+              ),
+              subtitle: Text(
+                "Visit the developer's website",
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+              onTap: () async {
+                final url = Uri.parse('https://shrit.in');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
