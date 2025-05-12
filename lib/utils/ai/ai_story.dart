@@ -16,6 +16,8 @@ class StoryGenerator {
     ideally, you're style/tone should sound like the user themselves. it's as if the user is hearing their own tone but it should still feel different, because you have different things to say and don't just repeat back they say.
 
     else, start by saying, "hey, thanks for showing me this. my thoughts:"
+
+    don't end with a question, just say what you think and end with a period. 
         
     my entry:''';
 
@@ -46,9 +48,30 @@ class StoryGenerator {
 
 Future<Note> generateStory(Note note) async {
   try {
-    final prompt = '''Journal entry: ${note.plainContent}''';
+    final prompt =
+        '''Journal entry: ${note.content.map((item) => item['insert']).join('')}
+
+Please analyze this journal entry and provide:
+1. A list of relevant tags (3-5 words that categorize this entry, make sure it says about the person emotional state)
+2. The overall mood of the entry (one word)
+3. A brief reflection (3-10 words) about what this entry reveals about the person
+
+Format your response as JSON:
+{
+  "tags": ["tag1", "tag2", "tag3"],
+  "mood": "mood",
+  "reflect": "reflection"
+}
+
+Then provide your usual friendly response after the JSON.''';
 
     final storyContent = await StoryGenerator.generateAIStory(prompt);
+
+    // Extract JSON from the response
+    final jsonStart = storyContent.indexOf('{');
+    final jsonEnd = storyContent.lastIndexOf('}') + 1;
+    final jsonStr = storyContent.substring(jsonStart, jsonEnd);
+    final analysis = jsonDecode(jsonStr);
 
     final generatedContent = [
       // Journal Entry Section
@@ -65,7 +88,33 @@ Future<Note> generateStory(Note note) async {
       },
 
       // AI Response Section
-      {'insert': storyContent},
+      {
+        'insert': 'Journal Response\n',
+        'attributes': {'bold': true, 'size': 16, 'color': '#3498DB'},
+      },
+      {'insert': storyContent.substring(jsonEnd + 1)},
+
+      // Tags Section
+      {
+        'insert': 'Tags\n',
+        'attributes': {'bold': true, 'size': 16, 'color': '#E74C3C'},
+      },
+
+      {'insert': '${(analysis['tags'] as List).join(', ')}\n\n'},
+
+      // Mood Section
+      {
+        'insert': 'Mood\n',
+        'attributes': {'bold': true, 'size': 16, 'color': '#E67E22'},
+      },
+      {'insert': '${analysis['mood']}\n\n'},
+
+      // Reflection Section
+      {
+        'insert': 'Reflection\n',
+        'attributes': {'bold': true, 'size': 16, 'color': '#27AE60'},
+      },
+      {'insert': '${analysis['reflect']}\n\n'},
     ];
 
     return Note(
@@ -75,6 +124,9 @@ Future<Note> generateStory(Note note) async {
           'Generated story for ${DateFormat('MMM d, yyyy').format(note.date)}',
       id: note.id,
       isGenerated: true,
+      tags: List<String>.from(analysis['tags']),
+      mood: analysis['mood'],
+      reflect: analysis['reflect'],
     );
   } catch (e) {
     // Fallback content in case AI generation fails

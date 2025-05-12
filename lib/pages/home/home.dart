@@ -196,9 +196,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
     final testNote = Note(
       date: yesterday,
       content: [
-        {'insert': 'This is a test note from yesterday'},
+        {
+          'insert':
+              'I had a girlfriend but we broke up because she was a bitch',
+        },
       ],
-      plainContent: 'This is a test note from yesterday',
+      plainContent:
+          'I had a girlfriend but we broke up because she was a bitch',
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       isGenerated: false,
     );

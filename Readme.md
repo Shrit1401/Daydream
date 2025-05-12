@@ -52,7 +52,7 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] store notes data in local storage
 - [x] auto save notes in the local storage
 - [x] as soon as day end generate a story like content also make sure to make the note non-editable after that
-- [ ] have AI in page to generate story using openai
+- [x] have AI in page to generate story using openai
 - [ ] try Tensorflow to generate story locally(if it works have option for the user to choose b/w these two)
 - [ ] add a user in firestore
 - [ ] .... decide after that

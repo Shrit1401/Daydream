@@ -19,12 +19,24 @@ class Note {
   @HiveField(4)
   final bool isGenerated;
 
+  @HiveField(5)
+  final List<String>? tags;
+
+  @HiveField(6)
+  final String? mood;
+
+  @HiveField(7)
+  final String? reflect;
+
   const Note({
     required this.date,
     required this.content,
     required this.plainContent,
     required this.id,
     required this.isGenerated,
+    this.tags,
+    this.mood,
+    this.reflect,
   });
 }
 
