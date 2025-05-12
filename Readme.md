@@ -1,31 +1,26 @@
 # ✨ What I’m Building
 
-**Daydream** is a story journal app where users casually write what’s going on in their life — anything from  
-_“I have to go to LA”_, _“I want to build a startup”_, to _“I don’t want to study anymore, but I have to.”_
+**Daydream** is an emotional reflection assistant. Users write journal entries about their daily thoughts, actions, or feelings — anything from  
+_“I have to go to LA”_, _“I want to build a startup”_, to _“I don’t want to study anymore, but I have to.”_  
+Daydream responds to each entry with a meaningful reflection, insight, or encouragement.
 
 ---
 
 # 📝 How It Works
 
-### 1. Raw Expression
+### 1. Daily Journal Input
 
-Users type freely in their own voice — unfiltered, chaotic, honest.  
-It’s not about grammar or coherence. It’s about what’s on your mind.
+Users log their daily thoughts, activities, or emotional states in a free-form journal.  
+It’s unfiltered and in their own voice.
 
-### 2. One-Click Journal Summary
+### 2. Intelligent Reflections
 
-With one click, Daydream generates a journal-style summary. Users can choose the tone:
+Daydream responds to each entry with thoughtful feedback — from emotional validation to subtle encouragement or even practical suggestions.
 
-- ✍️ **Reflective**
-- 🎭 **Poetic**
-- 🧠 **Minimal**
-- 😂 **Humorous**
-- 💬 **Conversational**
+### 3. Emotion Journey Story (Every 5–10 Days)
 
-### 3. Story Mode (Every 5–10 Days)
-
-Daydream transforms scattered entries into a cohesive, readable life narrative.  
-This isn’t just logging events — it’s reliving your story, chapter by chapter.
+After a series of entries, Daydream compiles an emotional journey.  
+This story isn’t about reliving events — it’s about revealing patterns in your emotional evolution.
 
 ### 4. Emotion Analysis
 
@@ -35,8 +30,7 @@ Each entry is analyzed using AI for:
 - **Mood intensity**
 - **Emotional trends over time**
 
-These insights feed into the summaries and stories.  
-If your week was anxious but ended on a hopeful note, the tone reflects that naturally.
+These insights are woven into both the reflections and the final story.
 
 ### 5. Mood Graphs & Visual Insights
 
@@ -49,8 +43,8 @@ Daydream visualizes your emotional journey:
 
 ### 6. Adaptive Personalization
 
-Over time, Daydream learns your writing style and emotional vocabulary.  
-Summaries and stories start to sound more like you — because they’re based on your patterns.
+Daydream learns your writing style and emotional cues over time.  
+Reflections and stories become increasingly personalized — they sound like they’re written just for you.
 
 ## A little todo list
 

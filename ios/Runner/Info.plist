@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+    <string>This app needs access to network service discovery to debug the app</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_dartobservatory._tcp</string>
+    </array>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>This app needs access to documents folder to store Hive database files</string>
+    <key>NSApplicationSupportFolderUsageDescription</key>
+    <string>This app needs access to application support folder to store Hive database files</string>
 </dict>
 </plist>

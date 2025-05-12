@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:daydream/constants.dart';
 
 class StoryGenerator {
   static const String _apiUrl = 'https://ai.hackclub.com/chat/completions';
@@ -52,11 +51,20 @@ Future<Note> generateStory(Note note) async {
     final storyContent = await StoryGenerator.generateAIStory(prompt);
 
     final generatedContent = [
-      {'insert': '${note.plainContent}\n\n'},
+      // Journal Entry Section
       {
-        'insert': '---\n\n',
-        'attributes': {'align': 'center'},
+        'insert': 'Your Entry\n',
+        'attributes': {'bold': true, 'size': 20, 'color': '#2C3E50'},
       },
+      {'insert': '${note.plainContent}\n\n'},
+
+      // Divider
+      {
+        'insert': '• • •\n',
+        'attributes': {'align': 'center', 'color': '#95A5A6', 'size': 16},
+      },
+
+      // AI Response Section
       {'insert': storyContent},
     ];
 
@@ -72,8 +80,12 @@ Future<Note> generateStory(Note note) async {
     // Fallback content in case AI generation fails
     final generatedContent = [
       {
-        'insert':
-            'Unable to generate story at this time. Please try again later.\n\n',
+        'insert': 'Unable to generate story at this time.\n',
+        'attributes': {'color': '#E74C3C', 'italic': true},
+      },
+      {
+        'insert': 'Please try again later.\n\n',
+        'attributes': {'color': '#E74C3C', 'italic': true},
       },
     ];
 
