@@ -53,9 +53,9 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] auto save notes in the local storage
 - [x] as soon as day end generate a story like content also make sure to make the note non-editable after that
 - [x] have AI in page to generate story using openai
-- [ ] add a user in firestore
-  - name, number of notes, email
 - [ ] overdo with the graphs section (make it more informative and useful)
+- [ ] have a option to create a note, and have a badge for custom note
+- [ ] make it in the subscription model
 - [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [ ] try Tensorflow to generate story locally(if it works have option for the user to choose b/w these two)
 - [ ] having a dark theme

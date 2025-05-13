@@ -120,8 +120,7 @@ Then provide your usual friendly response after the JSON.''';
     return Note(
       date: note.date,
       content: generatedContent,
-      plainContent:
-          'Generated story for ${DateFormat('MMM d, yyyy').format(note.date)}',
+      plainContent: analysis['reflect'],
       id: note.id,
       isGenerated: true,
       tags: List<String>.from(analysis['tags']),

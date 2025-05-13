@@ -787,7 +787,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Create your first journal entry to unlock your personalized story analysis.',
+                      'After creating your first journal entry, wait until the end of the day to unlock detailed insights and visualizations of your emotional journey.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.dmSans(
                         fontSize: 16,
