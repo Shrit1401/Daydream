@@ -336,52 +336,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             content: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        Colors.amber.shade100,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Icon(
-                                                        CupertinoIcons
-                                                            .star_fill,
-                                                        size: 14,
-                                                        color:
-                                                            Colors
-                                                                .amber
-                                                                .shade700,
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Text(
-                                                        'Premium Feature',
-                                                        style:
-                                                            GoogleFonts.dmSans(
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color:
-                                                                  Colors
-                                                                      .amber
-                                                                      .shade700,
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 16),
                                                 CupertinoTextField(
                                                   placeholder:
                                                       'Enter note title',

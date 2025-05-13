@@ -73,6 +73,14 @@ Then provide your usual friendly response after the JSON.''';
     final jsonStr = storyContent.substring(jsonStart, jsonEnd);
     final analysis = jsonDecode(jsonStr);
 
+    // Get everything after the JSON block, trimmed of leading whitespace/newlines
+    final afterJson =
+        storyContent.length > jsonEnd
+            ? storyContent
+                .substring(jsonEnd)
+                .replaceFirst(RegExp(r'^[\s\n]+'), '')
+            : '';
+
     final generatedContent = [
       // Journal Entry Section
       {
@@ -92,7 +100,7 @@ Then provide your usual friendly response after the JSON.''';
         'insert': 'Journal Response\n',
         'attributes': {'bold': true, 'size': 16, 'color': '#3498DB'},
       },
-      {'insert': "${storyContent.substring(jsonEnd + 1)}\n\n"},
+      {'insert': "$afterJson\n\n"},
 
       // Tags Section
       {
