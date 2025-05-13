@@ -25,13 +25,15 @@ class NoteAdapter extends TypeAdapter<Note> {
       tags: (fields[5] as List?)?.cast<String>(),
       mood: fields[6] as String?,
       reflect: fields[7] as String?,
+      title: fields[8] as String?,
+      isCustom: fields[9] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, Note obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -47,7 +49,11 @@ class NoteAdapter extends TypeAdapter<Note> {
       ..writeByte(6)
       ..write(obj.mood)
       ..writeByte(7)
-      ..write(obj.reflect);
+      ..write(obj.reflect)
+      ..writeByte(8)
+      ..write(obj.title)
+      ..writeByte(9)
+      ..write(obj.isCustom);
   }
 
   @override

@@ -28,6 +28,12 @@ class Note {
   @HiveField(7)
   final String? reflect;
 
+  @HiveField(8)
+  final String? title;
+
+  @HiveField(9)
+  final bool isCustom;
+
   const Note({
     required this.date,
     required this.content,
@@ -37,6 +43,8 @@ class Note {
     this.tags,
     this.mood,
     this.reflect,
+    this.title,
+    this.isCustom = false,
   });
 }
 

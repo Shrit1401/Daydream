@@ -269,21 +269,38 @@ class _HomePageState extends State<HomePage> with RouteAware {
                           horizontal: 8,
                           vertical: 0,
                         ),
-                        child: Row(
-                          children: [
-                            Text(
-                              userName,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 18,
-                                color: Colors.black,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.black.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                userName,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            const Icon(
-                              CupertinoIcons.chevron_down,
-                              size: 20,
-                              color: Colors.black,
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Icon(
+                                CupertinoIcons.chevron_down,
+                                size: 16,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ],
+                          ),
                         ),
                         onPressed: () {
                           showCupertinoModalPopup(
@@ -308,11 +325,132 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
                                       Navigator.pop(context);
+                                      showCupertinoModalPopup(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          String title = '';
+                                          return CupertinoAlertDialog(
+                                            title: const Text(
+                                              'Create Custom Note',
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.amber.shade100,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        CupertinoIcons
+                                                            .star_fill,
+                                                        size: 14,
+                                                        color:
+                                                            Colors
+                                                                .amber
+                                                                .shade700,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        'Premium Feature',
+                                                        style:
+                                                            GoogleFonts.dmSans(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color:
+                                                                  Colors
+                                                                      .amber
+                                                                      .shade700,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                CupertinoTextField(
+                                                  placeholder:
+                                                      'Enter note title',
+                                                  onChanged: (value) {
+                                                    title = value;
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                child: const Text('Cancel'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              CupertinoDialogAction(
+                                                child: const Text('Create'),
+                                                onPressed: () async {
+                                                  if (title.isNotEmpty) {
+                                                    final now = DateTime.now();
+                                                    final newNote = Note(
+                                                      date: now,
+                                                      content: [],
+                                                      plainContent: "",
+                                                      id:
+                                                          DateTime.now()
+                                                              .millisecondsSinceEpoch
+                                                              .toString(),
+                                                      isGenerated: false,
+                                                      title: title,
+                                                      isCustom: true,
+                                                    );
+                                                    await HiveLocal.saveNote(
+                                                      newNote,
+                                                    );
+                                                    if (mounted) {
+                                                      Navigator.pop(context);
+                                                      await _loadNotes();
+                                                      _navigateToNote(newNote);
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('Create Custom Note'),
+                                        const SizedBox(width: 6),
+                                        Icon(
+                                          CupertinoIcons.star_fill,
+                                          size: 14,
+                                          color: Colors.amber.shade700,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
                                       await _createTestNote();
                                     },
                                     child: const Text('Create Test Note'),
                                   ),
-
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
                                       Navigator.pop(context);
@@ -335,7 +473,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   if (_errorMessage != null)
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),

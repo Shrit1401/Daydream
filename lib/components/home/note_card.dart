@@ -40,9 +40,41 @@ class NoteCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InstrumentText(
-                        '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
+                        note.isCustom && note.title != null
+                            ? note.title!
+                            : '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
                         fontSize: 24,
                       ),
+                      if (note.isCustom)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.edit_note,
+                                size: 14,
+                                color: Colors.blue.shade700,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Custom',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       if (DateTime.now().year == note.date.year &&
                           DateTime.now().month == note.date.month &&
                           DateTime.now().day == note.date.day)
