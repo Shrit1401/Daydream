@@ -33,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
           image: DecorationImage(
             image: AssetImage('images/authWallpaper.png'),
             fit: BoxFit.cover,
-            opacity: 0.7,
           ),
         ),
         child: SafeArea(

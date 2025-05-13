@@ -543,7 +543,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            '${entry.key}',
+                            entry.key,
                             style: GoogleFonts.dmSans(
                               fontSize: size,
                               color: Colors.black87,

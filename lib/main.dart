@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import "package:flutter_localizations/flutter_localizations.dart";
+import 'package:daydream/components/dream_bubble_loading.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +55,12 @@ class DaydreamApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+              body: Center(
+                child: DreamBubbleLoading(
+                  title: 'Loading your dreams...',
+                  subtitle: 'Preparing your personal space',
+                ),
+              ),
             );
           }
 

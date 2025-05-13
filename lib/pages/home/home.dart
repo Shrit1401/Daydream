@@ -10,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -155,21 +154,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
     if (mounted) {
       await _loadNotes();
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final noteDate = DateTime(date.year, date.month, date.day);
-
-    if (noteDate == today) {
-      return 'Today';
-    } else if (noteDate == yesterday) {
-      return 'Yesterday';
-    } else {
-      return DateFormat('MMM d, yyyy').format(date);
     }
   }
 
