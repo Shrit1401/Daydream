@@ -5,10 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:daydream/components/analysis/sin_cos_chart.dart';
+import 'package:daydream/components/dream_bubble_loading.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class DetailedAnalysisPage extends StatefulWidget {
   const DetailedAnalysisPage({super.key});
-
   @override
   State<DetailedAnalysisPage> createState() => _DetailedAnalysisPageState();
 }
@@ -21,6 +23,64 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   Map<String, int> _tagFrequency = {};
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+
+  // New statistics variables
+  String _mostFrequentMood = '';
+  String _mostFrequentTag = '';
+  String _averageMood = '';
+  String _writingStreak = '';
+  String _totalWords = '';
+  String _averageWordsPerEntry = '';
+  String _mostProductiveTime = '';
+  String _mostReflectiveDay = '';
+
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  List<Note> get _notesForSelectedDay {
+    if (_selectedDay == null) return [];
+    return _notes
+        .where(
+          (note) =>
+              note.date.year == _selectedDay!.year &&
+              note.date.month == _selectedDay!.month &&
+              note.date.day == _selectedDay!.day,
+        )
+        .toList();
+  }
+
+  String _moodToEmoji(String? mood) {
+    switch (mood) {
+      case 'happy':
+      case 'joyful':
+      case 'excited':
+        return '😄';
+      case 'content':
+      case 'calm':
+        return '😊';
+      case 'neutral':
+        return '😐';
+      case 'tired':
+        return '😴';
+      case 'sad':
+        return '😢';
+      case 'angry':
+        return '😠';
+      case 'anxious':
+        return '😰';
+      default:
+        return '📝';
+    }
+  }
+
+  Map<DateTime, List<Note>> get _notesByDay {
+    final map = <DateTime, List<Note>>{};
+    for (var note in _notes) {
+      final day = DateTime(note.date.year, note.date.month, note.date.day);
+      map.putIfAbsent(day, () => []).add(note);
+    }
+    return map;
+  }
 
   @override
   void initState() {
@@ -69,6 +129,9 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
         }
       }
 
+      // Calculate additional statistics
+      _calculateStatistics();
+
       setState(() {
         _isLoading = false;
       });
@@ -78,6 +141,383 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
         _isLoading = false;
       });
     }
+  }
+
+  void _calculateStatistics() {
+    if (_notes.isEmpty) return;
+
+    // Most frequent mood
+    _mostFrequentMood =
+        _moodFrequency.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+
+    // Most frequent tag
+    _mostFrequentTag =
+        _tagFrequency.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+
+    // Average mood
+    double totalMoodValue = 0;
+    int moodCount = 0;
+    for (var note in _notes) {
+      if (note.mood != null) {
+        totalMoodValue += _getMoodValue(note.mood!);
+        moodCount++;
+      }
+    }
+    _averageMood =
+        moodCount > 0
+            ? _getMoodFromValue(totalMoodValue / moodCount)
+            : 'neutral';
+
+    // Writing streak
+    final sortedDates = _notes.map((n) => n.date).toList()..sort();
+    int currentStreak = 1;
+    int maxStreak = 1;
+    for (int i = 1; i < sortedDates.length; i++) {
+      final difference = sortedDates[i].difference(sortedDates[i - 1]).inDays;
+      if (difference == 1) {
+        currentStreak++;
+        maxStreak = currentStreak > maxStreak ? currentStreak : maxStreak;
+      } else {
+        currentStreak = 1;
+      }
+    }
+    _writingStreak = '$maxStreak days';
+
+    // Word count statistics
+    int totalWords = 0;
+    for (var note in _notes) {
+      totalWords += note.plainContent.split(' ').length;
+    }
+    _totalWords = '$totalWords words';
+    _averageWordsPerEntry =
+        '${(totalWords / _notes.length).round()} words per entry';
+
+    // Most productive time
+    final Map<int, int> entriesByHour = {};
+    for (var note in _notes) {
+      final hour = note.date.hour;
+      entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
+    }
+    final mostProductiveHour =
+        entriesByHour.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    _mostProductiveTime = '${mostProductiveHour}:00';
+
+    // Most reflective day
+    final Map<int, int> entriesByDay = {};
+    for (var note in _notes) {
+      final day = note.date.weekday;
+      entriesByDay[day] = (entriesByDay[day] ?? 0) + 1;
+    }
+    final mostReflectiveDayNum =
+        entriesByDay.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    _mostReflectiveDay = _getDayName(mostReflectiveDayNum);
+  }
+
+  double _getMoodValue(String mood) {
+    final moodValues = {
+      'happy': 5.0,
+      'excited': 5.0,
+      'joyful': 5.0,
+      'content': 4.0,
+      'calm': 4.0,
+      'neutral': 3.0,
+      'tired': 2.0,
+      'sad': 1.0,
+      'angry': 1.0,
+      'anxious': 1.0,
+    };
+    return moodValues[mood.toLowerCase()] ?? 3.0;
+  }
+
+  String _getMoodFromValue(double value) {
+    if (value >= 4.5) return 'happy';
+    if (value >= 3.5) return 'content';
+    if (value >= 2.5) return 'neutral';
+    if (value >= 1.5) return 'tired';
+    return 'sad';
+  }
+
+  String _getDayName(int day) {
+    switch (day) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Widget _buildStatisticsCard() {
+    final isWide = MediaQuery.of(context).size.width > 600;
+    final statItems = [
+      _buildStatItem(
+        'Emotional Profile',
+        _mostFrequentMood,
+        Colors.pink.shade300,
+        CupertinoIcons.heart_fill,
+        'Your dominant emotional state',
+      ),
+      _buildStatItem(
+        'Primary Theme',
+        _mostFrequentTag,
+        Colors.blue.shade300,
+        CupertinoIcons.tag_fill,
+        'Most recurring topic',
+      ),
+      _buildStatItem(
+        'Mood Balance',
+        _averageMood,
+        Colors.purple.shade300,
+        CupertinoIcons.chart_bar_alt_fill,
+        'Your emotional equilibrium',
+      ),
+      _buildStatItem(
+        'Consistency',
+        _writingStreak,
+        Colors.green.shade300,
+        CupertinoIcons.flame_fill,
+        'Longest writing streak',
+      ),
+      _buildStatItem(
+        'Total Journey',
+        _totalWords,
+        Colors.orange.shade300,
+        CupertinoIcons.doc_text_fill,
+        'Words of self-reflection',
+      ),
+      _buildStatItem(
+        'Depth',
+        _averageWordsPerEntry,
+        Colors.teal.shade300,
+        CupertinoIcons.text_quote,
+        'Average entry length',
+      ),
+      _buildStatItem(
+        'Peak Hours',
+        _mostProductiveTime,
+        Colors.indigo.shade300,
+        CupertinoIcons.clock_fill,
+        'Most productive time',
+      ),
+      _buildStatItem(
+        'Reflection Day',
+        _mostReflectiveDay,
+        Colors.amber.shade300,
+        CupertinoIcons.calendar,
+        'Most thoughtful day',
+      ),
+    ];
+
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.pink.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.sparkles,
+                        color: Colors.pink.shade300,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'AI-Powered Insights',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                isWide
+                    ? Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children:
+                          statItems
+                              .map(
+                                (item) => SizedBox(
+                                  width:
+                                      (MediaQuery.of(context).size.width - 88) /
+                                      2,
+                                  child: item,
+                                ),
+                              )
+                              .toList(),
+                    )
+                    : Column(
+                      children:
+                          statItems
+                              .map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 20),
+                                  child: item,
+                                ),
+                              )
+                              .toList(),
+                    ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.pink.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.pink.shade100),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.lightbulb_fill,
+                        color: Colors.pink.shade300,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Your journal shows a ${_getMoodInsight()} pattern. Consider exploring this theme further in your next entry.',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 14,
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getMoodInsight() {
+    if (_moodFrequency.isEmpty) return 'neutral';
+
+    final sortedMoods =
+        _moodFrequency.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    if (sortedMoods.length >= 2) {
+      final topMood = sortedMoods[0].key;
+      final secondMood = sortedMoods[1].key;
+      final topCount = sortedMoods[0].value;
+      final secondCount = sortedMoods[1].value;
+
+      if (topCount > secondCount * 1.5) {
+        return 'strongly $topMood';
+      } else if (topCount > secondCount) {
+        return 'moderately $topMood with some $secondMood';
+      } else {
+        return 'balanced between $topMood and $secondMood';
+      }
+    }
+
+    return sortedMoods[0].key;
+  }
+
+  Widget _buildStatItem(
+    String label,
+    String value,
+    Color color,
+    IconData icon,
+    String subtitle,
+  ) {
+    return Container(
+      // Full width on mobile, half on wide screens
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.18),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: GoogleFonts.dmSerifDisplay(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: GoogleFonts.dmSans(
+              fontSize: 12,
+              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMoodTrendChart() {
@@ -132,10 +572,40 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                   height: 200,
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: false),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: true,
+                        horizontalInterval: 1,
+                        verticalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withOpacity(0.2),
+                            strokeWidth: 1,
+                          );
+                        },
+                        getDrawingVerticalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withOpacity(0.2),
+                            strokeWidth: 1,
+                          );
+                        },
+                      ),
                       titlesData: FlTitlesData(
                         leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            getTitlesWidget: (value, meta) {
+                              return Text(
+                                _getMoodFromValue(value),
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 10,
+                                  color: Colors.grey.shade600,
+                                ),
+                              );
+                            },
+                            reservedSize: 42,
+                          ),
                         ),
                         rightTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
@@ -165,7 +635,10 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           ),
                         ),
                       ),
-                      borderData: FlBorderData(show: false),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                      ),
                       lineBarsData: [
                         LineChartBarData(
                           spots: List.generate(sortedNotes.length, (index) {
@@ -177,13 +650,92 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           color: Colors.purple.shade300,
                           barWidth: 3,
                           isStrokeCapRound: true,
-                          dotData: FlDotData(show: true),
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              return FlDotCirclePainter(
+                                radius: 6,
+                                color: Colors.purple.shade300,
+                                strokeWidth: 2,
+                                strokeColor: Colors.white,
+                              );
+                            },
+                          ),
                           belowBarData: BarAreaData(
                             show: true,
                             color: Colors.purple.shade50,
                           ),
                         ),
                       ],
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          tooltipBgColor: Colors.purple.shade100,
+                          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                            return touchedBarSpots.map((barSpot) {
+                              final note = sortedNotes[barSpot.x.toInt()];
+                              return LineTooltipItem(
+                                '${note.date.day}/${note.date.month}\n',
+                                GoogleFonts.dmSans(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Mood: ${note.mood ?? "neutral"}\n',
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  if (note.reflect != null)
+                                    TextSpan(
+                                      text: 'Reflection: ${note.reflect}',
+                                      style: GoogleFonts.dmSans(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                        ),
+                        handleBuiltInTouches: true,
+                        getTouchedSpotIndicator: (
+                          LineChartBarData barData,
+                          List<int> spotIndexes,
+                        ) {
+                          return spotIndexes.map((spotIndex) {
+                            return TouchedSpotIndicatorData(
+                              FlLine(
+                                color: Colors.purple.shade300,
+                                strokeWidth: 2,
+                                dashArray: [5, 5],
+                              ),
+                              FlDotData(
+                                getDotPainter: (spot, percent, barData, index) {
+                                  return FlDotCirclePainter(
+                                    radius: 8,
+                                    color: Colors.purple.shade300,
+                                    strokeWidth: 2,
+                                    strokeColor: Colors.white,
+                                  );
+                                },
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    'Your emotional journey over time',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
                     ),
                   ),
                 ),
@@ -193,22 +745,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
         ),
       ),
     );
-  }
-
-  double _getMoodValue(String mood) {
-    final moodValues = {
-      'happy': 5.0,
-      'excited': 5.0,
-      'joyful': 5.0,
-      'content': 4.0,
-      'calm': 4.0,
-      'neutral': 3.0,
-      'tired': 2.0,
-      'sad': 1.0,
-      'angry': 1.0,
-      'anxious': 1.0,
-    };
-    return moodValues[mood.toLowerCase()] ?? 3.0;
   }
 
   Widget _buildMoodPieChart() {
@@ -286,6 +822,46 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           }).toList(),
                       centerSpaceRadius: 40,
                       sectionsSpace: 2,
+                      startDegreeOffset: -90,
+                      centerSpaceColor: Colors.white,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          if (event is FlTapUpEvent) {
+                            final section = pieTouchResponse?.touchedSection;
+                            if (section != null) {
+                              final mood =
+                                  _moodFrequency.keys.toList()[section
+                                      .touchedSectionIndex];
+                              final count = _moodFrequency[mood]!;
+                              final percentage =
+                                  (count / _notes.length * 100).round();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '$mood: $count entries ($percentage%)',
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.indigo.shade300,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    'Distribution of your emotional states',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
                     ),
                   ),
                 ),
@@ -353,7 +929,34 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
                       maxY: topTags.first.value.toDouble() * 1.2,
-                      barTouchData: BarTouchData(enabled: false),
+                      barTouchData: BarTouchData(
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBgColor: Colors.blue.shade100,
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            final tag = topTags[groupIndex].key;
+                            final count = topTags[groupIndex].value;
+                            final percentage =
+                                (count / _notes.length * 100).round();
+                            return BarTooltipItem(
+                              '$tag\n',
+                              GoogleFonts.dmSans(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: '$count entries ($percentage%)',
+                                  style: GoogleFonts.dmSans(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
                         show: true,
                         bottomTitles: AxisTitles(
@@ -377,7 +980,20 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           ),
                         ),
                         leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            getTitlesWidget: (value, meta) {
+                              return Text(
+                                value.toInt().toString(),
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 10,
+                                  color: Colors.grey.shade600,
+                                ),
+                              );
+                            },
+                            reservedSize: 28,
+                          ),
                         ),
                         rightTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
@@ -386,8 +1002,21 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           sideTitles: SideTitles(showTitles: false),
                         ),
                       ),
-                      borderData: FlBorderData(show: false),
-                      gridData: FlGridData(show: false),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                      ),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withOpacity(0.2),
+                            strokeWidth: 1,
+                          );
+                        },
+                      ),
                       barGroups: List.generate(
                         topTags.length,
                         (index) => BarChartGroupData(
@@ -400,10 +1029,25 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(6),
                               ),
+                              backDrawRodData: BackgroundBarChartRodData(
+                                show: true,
+                                toY: topTags.first.value.toDouble(),
+                                color: Colors.blue.shade50,
+                              ),
                             ),
                           ],
                         ),
                       ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    'Most common themes in your journal',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
                     ),
                   ),
                 ),
@@ -471,7 +1115,30 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
                       maxY: topTags.first.value.toDouble() * 1.2,
-                      barTouchData: BarTouchData(enabled: false),
+                      barTouchData: BarTouchData(
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBgColor: Colors.cyan.shade100,
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              '${topTags[groupIndex].key}\n',
+                              GoogleFonts.dmSans(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: '${rod.toY.toInt()}',
+                                  style: GoogleFonts.dmSans(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
                         show: true,
                         bottomTitles: AxisTitles(
@@ -547,6 +1214,12 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
     }
 
+    // Find the maximum value for scaling
+    final maxValue = entriesByHour.values.fold(
+      0,
+      (max, value) => value > max ? value : max,
+    );
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Card(
@@ -590,7 +1263,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
-                  height: 200,
+                  height: 400,
                   child: RadarChart(
                     RadarChartData(
                       dataSets: [
@@ -598,28 +1271,108 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                           dataEntries: List.generate(
                             24,
                             (index) => RadarEntry(
-                              value: entriesByHour[index]?.toDouble() ?? 0,
+                              value:
+                                  (entriesByHour[index]?.toDouble() ?? 0) /
+                                  maxValue *
+                                  5,
                             ),
                           ),
                           fillColor: Colors.amber.shade300.withOpacity(0.3),
                           borderColor: Colors.amber.shade300,
+                          borderWidth: 2,
                         ),
                       ],
                       titleTextStyle: GoogleFonts.dmSans(
-                        fontSize: 10,
-                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w500,
                       ),
                       tickCount: 5,
                       ticksTextStyle: GoogleFonts.dmSans(
-                        fontSize: 8,
-                        color: Colors.grey.shade400,
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
                       ),
                       getTitle: (index, angle) {
-                        return RadarChartTitle(text: '${index}h', angle: angle);
+                        final hour = index;
+                        final period = hour < 12 ? 'AM' : 'PM';
+                        final displayHour =
+                            hour == 0
+                                ? 12
+                                : hour > 12
+                                ? hour - 12
+                                : hour;
+                        return RadarChartTitle(
+                          text: '$displayHour$period',
+                          angle: angle,
+                        );
                       },
+                      titlePositionPercentageOffset: 0.2,
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    'Your writing activity throughout the day',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSinCosChart() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.graph_circle,
+                        color: Colors.green.shade300,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Sin Cos Graph',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const SinCosChart(),
               ],
             ),
           ),
@@ -645,20 +1398,10 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       ),
       body:
           _isLoading
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Analyzing your patterns...',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+              ? const Center(
+                child: DreamBubbleLoading(
+                  title: 'Analyzing your patterns...',
+                  subtitle: 'Weaving insights from your journal entries',
                 ),
               )
               : generatedNotes.isEmpty
@@ -721,11 +1464,13 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildStatisticsCard(),
                     _buildMoodTrendChart(),
                     _buildMoodPieChart(),
                     _buildTagDistributionChart(),
                     _buildTagCandlestickChart(),
                     _buildWritingPatternsChart(),
+                    _buildSinCosChart(),
                   ],
                 ),
               ),

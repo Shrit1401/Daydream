@@ -6,6 +6,7 @@ import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'detailed_analysis_page.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
@@ -22,6 +23,8 @@ class _AnalysisPageState extends State<AnalysisPage>
   List<String> _commonReflections = [];
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   final List<Color> _moodColors = [
     const Color(0xFFE74C3C), // Red
@@ -744,6 +747,51 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
+  List<Note> get _notesForSelectedDay {
+    if (_selectedDay == null) return [];
+    return _notes
+        .where(
+          (note) =>
+              note.date.year == _selectedDay!.year &&
+              note.date.month == _selectedDay!.month &&
+              note.date.day == _selectedDay!.day,
+        )
+        .toList();
+  }
+
+  String _moodToEmoji(String? mood) {
+    switch (mood) {
+      case 'happy':
+      case 'joyful':
+      case 'excited':
+        return '😄';
+      case 'content':
+      case 'calm':
+        return '😊';
+      case 'neutral':
+        return '😐';
+      case 'tired':
+        return '😴';
+      case 'sad':
+        return '😢';
+      case 'angry':
+        return '😠';
+      case 'anxious':
+        return '😰';
+      default:
+        return '📝';
+    }
+  }
+
+  Map<DateTime, List<Note>> get _notesByDay {
+    final map = <DateTime, List<Note>>{};
+    for (var note in _notes) {
+      final day = DateTime(note.date.year, note.date.month, note.date.day);
+      map.putIfAbsent(day, () => []).add(note);
+    }
+    return map;
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasNotes = _notes.isNotEmpty;
@@ -762,6 +810,341 @@ class _AnalysisPageState extends State<AnalysisPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Calendar section
+            if (hasNotes)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 8,
+                    ),
+                    child: TableCalendar<Note>(
+                      firstDay: DateTime.utc(2020, 1, 1),
+                      lastDay: DateTime.utc(2100, 12, 31),
+                      focusedDay: _focusedDay,
+                      selectedDayPredicate:
+                          (day) =>
+                              _selectedDay != null &&
+                              day.year == _selectedDay!.year &&
+                              day.month == _selectedDay!.month &&
+                              day.day == _selectedDay!.day,
+                      calendarFormat: CalendarFormat.month,
+                      eventLoader: (day) {
+                        final notes =
+                            _notesByDay[DateTime(
+                              day.year,
+                              day.month,
+                              day.day,
+                            )] ??
+                            [];
+                        return notes;
+                      },
+                      headerStyle: HeaderStyle(
+                        titleTextStyle: GoogleFonts.dmSerifDisplay(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        formatButtonTextStyle: GoogleFonts.dmSans(
+                          fontSize: 14,
+                          color: Colors.purple.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        formatButtonDecoration: BoxDecoration(
+                          border: Border.all(color: Colors.purple.shade200),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        leftChevronIcon: Icon(
+                          CupertinoIcons.chevron_left,
+                          color: Colors.purple.shade400,
+                          size: 22,
+                        ),
+                        rightChevronIcon: Icon(
+                          CupertinoIcons.chevron_right,
+                          color: Colors.purple.shade400,
+                          size: 22,
+                        ),
+                        titleCentered: true,
+                        formatButtonVisible: true,
+                        decoration: const BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
+                        weekendStyle: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: Colors.purple.shade300,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      calendarStyle: CalendarStyle(
+                        todayDecoration: BoxDecoration(
+                          color: Colors.purple.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        selectedDecoration: BoxDecoration(
+                          color: Colors.purple.shade400,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.purple.shade200.withOpacity(0.4),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        defaultTextStyle: GoogleFonts.dmSans(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        weekendTextStyle: GoogleFonts.dmSans(
+                          fontSize: 15,
+                          color: Colors.purple.shade300,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        outsideTextStyle: GoogleFonts.dmSans(
+                          fontSize: 15,
+                          color: Colors.grey.shade300,
+                        ),
+                        cellMargin: const EdgeInsets.all(4),
+                        cellPadding: const EdgeInsets.all(0),
+                        markerDecoration: BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                      onDaySelected: (selectedDay, focusedDay) {
+                        setState(() {
+                          _selectedDay = selectedDay;
+                          _focusedDay = focusedDay;
+                        });
+                      },
+                      calendarBuilders: CalendarBuilders(
+                        markerBuilder: (context, day, notes) {
+                          if (notes.isNotEmpty) {
+                            // Show the emoji of the most frequent mood for the day
+                            final moods =
+                                notes
+                                    .map((n) => n.mood)
+                                    .whereType<String>()
+                                    .toList();
+                            String? mood;
+                            if (moods.isNotEmpty) {
+                              final freq = <String, int>{};
+                              for (var m in moods) {
+                                freq[m] = (freq[m] ?? 0) + 1;
+                              }
+                              mood =
+                                  freq.entries
+                                      .reduce(
+                                        (a, b) => a.value > b.value ? a : b,
+                                      )
+                                      .key;
+                            }
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _moodToEmoji(mood),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                const SizedBox(height: 2),
+                              ],
+                            );
+                          }
+                          return null;
+                        },
+                        defaultBuilder: (context, day, focusedDay) {
+                          return Center(
+                            child: Text(
+                              '${day.day}',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 15,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        },
+                        selectedBuilder: (context, day, focusedDay) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.purple.shade400,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.purple.shade200.withOpacity(
+                                    0.4,
+                                  ),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${day.day}',
+                                style: GoogleFonts.dmSerifDisplay(
+                                  fontSize: 17,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        todayBuilder: (context, day, focusedDay) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.purple.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${day.day}',
+                                style: GoogleFonts.dmSerifDisplay(
+                                  fontSize: 17,
+                                  color: Colors.purple.shade700,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (hasNotes &&
+                _selectedDay != null &&
+                _notesForSelectedDay.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Notes for ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ..._notesForSelectedDay.map(
+                      (note) => Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.shade50.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.purple.shade100.withOpacity(0.12),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 18,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _moodToEmoji(note.mood),
+                                    style: const TextStyle(fontSize: 22),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      note.plainContent.length > 40
+                                          ? note.plainContent.substring(0, 40) +
+                                              '...'
+                                          : note.plainContent,
+                                      style: GoogleFonts.dmSerifDisplay(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (note.tags != null &&
+                                  note.tags!.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                Divider(
+                                  color: Colors.purple.shade100,
+                                  thickness: 1,
+                                  height: 1,
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children:
+                                      note.tags!
+                                          .map(
+                                            (tag) => Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.purple.shade100
+                                                    .withOpacity(0.7),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                tag,
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 12,
+                                                  color: Colors.purple.shade700,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             _buildHeader(),
             if (!hasNotes)
               Padding(

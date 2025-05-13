@@ -92,7 +92,7 @@ Then provide your usual friendly response after the JSON.''';
         'insert': 'Journal Response\n',
         'attributes': {'bold': true, 'size': 16, 'color': '#3498DB'},
       },
-      {'insert': storyContent.substring(jsonEnd + 1)},
+      {'insert': "${storyContent.substring(jsonEnd + 1)}\n\n"},
 
       // Tags Section
       {

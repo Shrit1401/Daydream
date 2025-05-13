@@ -274,6 +274,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     child: const Text('Settings'),
                                   ),
                                   CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _createTestNote();
+                                    },
+                                    child: const Text('Create Test Note'),
+                                  ),
+                                  CupertinoActionSheetAction(
                                     onPressed: () {
                                       Navigator.pop(context);
                                       Navigator.push(
@@ -285,13 +292,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                       );
                                     },
                                     child: const Text('Journal Analysis'),
-                                  ),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _createTestNote();
-                                    },
-                                    child: const Text('Create Test Note'),
                                   ),
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
@@ -474,47 +474,55 @@ class _HomePageState extends State<HomePage> with RouteAware {
           Positioned(
             bottom: 32,
             right: 24,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AnalysisPage()),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
                   borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      CupertinoIcons.chart_bar_alt_fill,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Journal Analysis',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AnalysisPage(),
                       ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.chart_bar_alt_fill,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Journal Analysis',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

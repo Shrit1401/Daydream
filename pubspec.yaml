@@ -45,6 +45,7 @@ dependencies:
   hive_flutter: ^1.1.0
   http: ^1.4.0
   fl_chart: ^0.65.0
+  table_calendar: ^3.0.9
 dev_dependencies:
   flutter_test:
     sdk: flutter
