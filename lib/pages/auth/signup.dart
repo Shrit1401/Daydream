@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -286,19 +285,6 @@ class _SignupPageState extends State<SignupPage> {
         // update user profile
         await userCred.user?.updateDisplayName(_nameController.text.trim());
 
-        if (userCred.user != null) {
-          // have a firestore db
-          await FirebaseFirestore.instance
-              .collection("users")
-              .doc(userCred.user!.uid)
-              .set({
-                'email': userCred.user!.email,
-                'name': userCred.user!.displayName,
-                'notesCreated': 0,
-                'storyGenerated': 0,
-              });
-        }
-
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -339,7 +325,6 @@ class _SignupPageState extends State<SignupPage> {
           );
         }
       } catch (e) {
-        print(e);
         // Handle generic errors
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
