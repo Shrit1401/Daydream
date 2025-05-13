@@ -1,7 +1,7 @@
-# ✨ What I’m Building
+# ✨ What I'm Building
 
 **Daydream** is an emotional reflection assistant. Users write journal entries about their daily thoughts, actions, or feelings — anything from  
-_“I have to go to LA”_, _“I want to build a startup”_, to _“I don’t want to study anymore, but I have to.”_  
+_"I have to go to LA"_, _"I want to build a startup"_, to _"I don't want to study anymore, but I have to."_  
 Daydream responds to each entry with a meaningful reflection, insight, or encouragement.
 
 ---
@@ -11,7 +11,7 @@ Daydream responds to each entry with a meaningful reflection, insight, or encour
 ### 1. Daily Journal Input
 
 Users log their daily thoughts, activities, or emotional states in a free-form journal.  
-It’s unfiltered and in their own voice.
+It's unfiltered and in their own voice.
 
 ### 2. Intelligent Reflections
 
@@ -20,7 +20,7 @@ Daydream responds to each entry with thoughtful feedback — from emotional vali
 ### 3. Emotion Journey Story (Every 5–10 Days)
 
 After a series of entries, Daydream compiles an emotional journey.  
-This story isn’t about reliving events — it’s about revealing patterns in your emotional evolution.
+This story isn't about reliving events — it's about revealing patterns in your emotional evolution.
 
 ### 4. Emotion Analysis
 
@@ -39,12 +39,12 @@ Daydream visualizes your emotional journey:
 - 📈 **Mood Over Time** – Line chart showing daily highs/lows
 - 🎨 **Emotion Distribution** – Pie or bar chart for emotion categories
 - ⏳ **Change Over Time** – Trends in tone, energy, clarity, etc.
-- 🌗 **Moon-Like Cycles** – Weekly “emotional weather” forecasts
+- 🌗 **Moon-Like Cycles** – Weekly "emotional weather" forecasts
 
 ### 6. Adaptive Personalization
 
 Daydream learns your writing style and emotional cues over time.  
-Reflections and stories become increasingly personalized — they sound like they’re written just for you.
+Reflections and stories become increasingly personalized — they sound like they're written just for you.
 
 ## A little todo list
 
@@ -59,7 +59,6 @@ Reflections and stories become increasingly personalized — they sound like the
 - [ ] have a cool onboarding flow
 - [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [ ] having a dark theme
-- [ ] add a option in notes to talk with journal using elevenlabs agent, it should be able to understand user's day and generate required response ($10/month or 50 rupess/month)
 - [ ] add a paywall inorder to access journal analysis page
 - [ ] make a website for this app and add some animation
 - [ ] add a option to share the story on social media (where they say one word about the story)

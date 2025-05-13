@@ -7,7 +7,6 @@ import 'package:daydream/utils/types/types.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:daydream/components/analysis/sin_cos_chart.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class DetailedAnalysisPage extends StatefulWidget {
   const DetailedAnalysisPage({super.key});
@@ -33,54 +32,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   String _averageWordsPerEntry = '';
   String _mostProductiveTime = '';
   String _mostReflectiveDay = '';
-
-  final DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
-  List<Note> get _notesForSelectedDay {
-    if (_selectedDay == null) return [];
-    return _notes
-        .where(
-          (note) =>
-              note.date.year == _selectedDay!.year &&
-              note.date.month == _selectedDay!.month &&
-              note.date.day == _selectedDay!.day,
-        )
-        .toList();
-  }
-
-  String _moodToEmoji(String? mood) {
-    switch (mood) {
-      case 'happy':
-      case 'joyful':
-      case 'excited':
-        return '😄';
-      case 'content':
-      case 'calm':
-        return '😊';
-      case 'neutral':
-        return '😐';
-      case 'tired':
-        return '😴';
-      case 'sad':
-        return '😢';
-      case 'angry':
-        return '😠';
-      case 'anxious':
-        return '😰';
-      default:
-        return '📝';
-    }
-  }
-
-  Map<DateTime, List<Note>> get _notesByDay {
-    final map = <DateTime, List<Note>>{};
-    for (var note in _notes) {
-      final day = DateTime(note.date.year, note.date.month, note.date.day);
-      map.putIfAbsent(day, () => []).add(note);
-    }
-    return map;
-  }
 
   @override
   void initState() {

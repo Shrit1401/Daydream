@@ -7,6 +7,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:daydream/utils/utils.dart';
+import 'package:flutter/cupertino.dart';
 
 class SingleNote extends StatefulWidget {
   final Note note;
@@ -73,7 +74,11 @@ class _SingleNoteState extends State<SingleNote> {
         });
       },
       onError: (error) {
-        print('Error in document listener: $error');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error in document listener: $error')),
+          );
+        }
       },
     );
 
@@ -368,36 +373,62 @@ class _SingleNoteState extends State<SingleNote> {
                                       vertical: 6,
                                       horizontal: 12,
                                     ),
-                                    child: QuillSimpleToolbar(
-                                      controller: _controller,
-                                      config: QuillSimpleToolbarConfig(
-                                        color: Colors.white,
-                                        showBoldButton: true,
-                                        showItalicButton: false,
-                                        showUnderLineButton: false,
-                                        showStrikeThrough: false,
-                                        showListBullets: true,
-                                        showListCheck: false,
-                                        showListNumbers: false,
-                                        showHeaderStyle: true,
-                                        showClearFormat: false,
-                                        showFontFamily: false,
-                                        showSearchButton: false,
-                                        showCodeBlock: false,
-                                        showInlineCode: false,
-                                        showQuote: false,
-                                        showIndent: false,
-                                        showLink: false,
-                                        showBackgroundColorButton: false,
-                                        showUndo: false,
-                                        showRedo: false,
-                                        showColorButton: false,
-                                        showSubscript: false,
-                                        showSuperscript: false,
-                                        showFontSize: false,
-                                        multiRowsDisplay: false,
-                                        toolbarSize: 15 * 2,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: QuillSimpleToolbar(
+                                            controller: _controller,
+                                            config: QuillSimpleToolbarConfig(
+                                              color: Colors.white,
+                                              showBoldButton: true,
+                                              showItalicButton: false,
+                                              showUnderLineButton: false,
+                                              showStrikeThrough: false,
+                                              showListBullets: true,
+                                              showListCheck: false,
+                                              showListNumbers: false,
+                                              showHeaderStyle: true,
+                                              showClearFormat: false,
+                                              showFontFamily: false,
+                                              showSearchButton: false,
+                                              showCodeBlock: false,
+                                              showInlineCode: false,
+                                              showQuote: false,
+                                              showIndent: false,
+                                              showLink: false,
+                                              showBackgroundColorButton: false,
+                                              showUndo: false,
+                                              showRedo: false,
+                                              showColorButton: false,
+                                              showSubscript: false,
+                                              showSuperscript: false,
+                                              showFontSize: false,
+                                              multiRowsDisplay: false,
+                                              toolbarSize: 15 * 2,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(
+                                            left: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              CupertinoIcons.mic_fill,
+                                              size: 22,
+                                            ),
+                                            tooltip: 'AI Voice',
+                                            color: Colors.white,
+                                            onPressed: () {},
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
