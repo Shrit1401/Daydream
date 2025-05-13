@@ -178,23 +178,55 @@ class _HomePageState extends State<HomePage> with RouteAware {
   }
 
   Future<void> _createTestNote() async {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    final testNote = Note(
-      date: yesterday,
-      content: [
-        {
-          'insert':
-              'I had a girlfriend but we broke up because she was a bitch',
-        },
-      ],
-      plainContent:
-          'I had a girlfriend but we broke up because she was a bitch',
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      isGenerated: false,
+    final TextEditingController textController = TextEditingController();
+
+    final result = await showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Create Test Note'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: CupertinoTextField(
+              controller: textController,
+              placeholder: 'Enter your note content',
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('Create'),
+              onPressed: () => Navigator.of(context).pop(textController.text),
+            ),
+          ],
+        );
+      },
     );
 
-    await HiveLocal.saveNote(testNote);
-    await _loadNotes();
+    if (result != null && result.isNotEmpty) {
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      final testNote = Note(
+        date: yesterday,
+        content: [
+          {'insert': result},
+        ],
+        plainContent: result,
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        isGenerated: false,
+      );
+
+      await HiveLocal.saveNote(testNote);
+      await _loadNotes();
+    }
   }
 
   @override
@@ -280,19 +312,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     },
                                     child: const Text('Create Test Note'),
                                   ),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => const AnalysisPage(),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('Journal Analysis'),
-                                  ),
+
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
                                       Navigator.pop(context);
@@ -430,7 +450,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                 children: [
                                   ListView.builder(
                                     padding: const EdgeInsets.only(bottom: 24),
-                                    itemCount: _notes.length,
+                                    itemCount:
+                                        _notes.length > 3 ? 3 : _notes.length,
                                     itemBuilder: (context, index) {
                                       final note = _notes[index];
                                       return Padding(

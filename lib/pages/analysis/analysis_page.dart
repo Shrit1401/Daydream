@@ -134,7 +134,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Text(
                       hasEnoughNotes
                           ? 'We\'ve analyzed your journal entries to create a unique story of your emotional journey.'
-                          : 'Create at least 5 journal entries to unlock your personalized story analysis.',
+                          : 'Create at least 3 journal entries to unlock your personalized story analysis.',
                       style: GoogleFonts.dmSans(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -193,7 +193,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Keep journaling! You need ${5 - _notes.length} more ${_notes.length == 4 ? 'entry' : 'entries'} for a complete analysis.',
+                      'Keep journaling! You need ${3 - _notes.length} more ${_notes.length == 4 ? 'entry' : 'entries'} for a complete analysis.',
                       style: GoogleFonts.dmSans(
                         fontSize: 13,
                         color: Colors.amber.shade900,
@@ -1085,8 +1085,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                                   Expanded(
                                     child: Text(
                                       note.plainContent.length > 40
-                                          ? note.plainContent.substring(0, 40) +
-                                              '...'
+                                          ? '${note.plainContent.substring(0, 40)}...'
                                           : note.plainContent,
                                       style: GoogleFonts.dmSerifDisplay(
                                         fontSize: 16,

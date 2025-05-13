@@ -34,7 +34,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   String _mostProductiveTime = '';
   String _mostReflectiveDay = '';
 
-  DateTime _focusedDay = DateTime.now();
+  final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
   List<Note> get _notesForSelectedDay {
@@ -200,7 +200,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
     }
     final mostProductiveHour =
         entriesByHour.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    _mostProductiveTime = '${mostProductiveHour}:00';
+    _mostProductiveTime = '$mostProductiveHour:00';
 
     // Most reflective day
     final Map<int, int> entriesByDay = {};
