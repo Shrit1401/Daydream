@@ -54,7 +54,7 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] as soon as day end generate a story like content also make sure to make the note non-editable after that
 - [x] have AI in page to generate story using openai
 - [x] overdo with the graphs section (make it more informative and useful)
-- [ ] have a option to create a note, and have a badge for custom note
+- [x] have a option to create a note, and have a badge for custom note
 - [ ] make it in the subscription model
 - [ ] have a cool onboarding flow
 - [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
