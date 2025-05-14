@@ -11,8 +11,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
+import 'package:uuid/uuid.dart';
+import 'dart:developer' as developer;
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+// Create a single instance of Uuid to use throughout the file
+final _uuid = Uuid();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -96,7 +100,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
           date: now,
           content: [],
           plainContent: "",
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          id: _uuid.v4(),
           isGenerated: false,
         );
         await HiveLocal.saveNote(newNote);
@@ -220,12 +224,68 @@ class _HomePageState extends State<HomePage> with RouteAware {
           {'insert': result},
         ],
         plainContent: result,
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: _uuid.v4(),
         isGenerated: false,
       );
 
       await HiveLocal.saveNote(testNote);
       await _loadNotes();
+    }
+  }
+
+  void _printAllNotes() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final notes = await HiveLocal.getAllNotes();
+      developer.log('===== ALL NOTES =====');
+      developer.log('Total notes: ${notes.length}');
+
+      for (var i = 0; i < notes.length; i++) {
+        final note = notes[i];
+        developer.log('Note ${i + 1}:');
+        developer.log('  ID: ${note.id}');
+        developer.log('  Date: ${note.date}');
+        developer.log('  Title: ${note.title ?? 'No title'}');
+        developer.log('  Content length: ${note.content.length} elements');
+        developer.log(
+          '  Plain content: ${note.plainContent.length > 50 ? '${note.plainContent.substring(0, 50)}...' : note.plainContent}',
+        );
+        developer.log('  Is generated: ${note.isGenerated}');
+        developer.log('  Is custom: ${note.isCustom ?? false}');
+        developer.log('-------------------');
+      }
+
+      developer.log('===== END OF NOTES =====');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Printed ${notes.length} notes to console',
+            style: GoogleFonts.dmSans(),
+          ),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      developer.log('Error printing notes: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error printing notes: $e',
+            style: GoogleFonts.dmSans(),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -361,10 +421,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                                       date: now,
                                                       content: [],
                                                       plainContent: "",
-                                                      id:
-                                                          DateTime.now()
-                                                              .millisecondsSinceEpoch
-                                                              .toString(),
+                                                      id: _uuid.v4(),
                                                       isGenerated: false,
                                                       title: title,
                                                       isCustom: true,
@@ -523,10 +580,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                           date: now,
                                           content: [],
                                           plainContent: "",
-                                          id:
-                                              DateTime.now()
-                                                  .millisecondsSinceEpoch
-                                                  .toString(),
+                                          id: _uuid.v4(),
                                           isGenerated: false,
                                         );
 
@@ -542,8 +596,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                 children: [
                                   ListView.builder(
                                     padding: const EdgeInsets.only(bottom: 24),
-                                    itemCount:
-                                        _notes.length > 3 ? 3 : _notes.length,
+                                    itemCount: _notes.length,
                                     itemBuilder: (context, index) {
                                       final note = _notes[index];
                                       return Padding(

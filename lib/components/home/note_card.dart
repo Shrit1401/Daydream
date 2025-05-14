@@ -50,7 +50,19 @@ class NoteCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (note.isCustom && note.title != null)
-                              InstrumentText(note.title!, fontSize: 24)
+                              InstrumentText(
+                                (() {
+                                  final words = note.title!.split(' ');
+                                  if (words.length > 2) {
+                                    return '${words.take(2).join(' ')}...';
+                                  } else {
+                                    return note.title!;
+                                  }
+                                })(),
+                                fontSize: 24,
+                                fontWeight: FontWeight.normal,
+                                italic: true,
+                              )
                             else
                               InstrumentText(
                                 '${note.date.day} ${getMonthName(note.date.month)} ${note.date.year.toString().substring(2)}',
@@ -61,7 +73,41 @@ class NoteCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (note.isCustom)
+                      if (note.isCustom && note.isGenerated)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8E1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFFFFD700),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                size: 16,
+                                color: const Color(0xFFFFA000),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Story Generated',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFFFA000),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (note.isCustom)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -124,7 +170,7 @@ class NoteCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      if (note.isGenerated)
+                      if (!note.isCustom && note.isGenerated)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -158,16 +204,16 @@ class NoteCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    note.plainContent.isEmpty
+                    (note.reflect == null || note.reflect!.isEmpty)
                         ? 'Tap to create note...'
-                        : note.plainContent.length > 70
-                        ? '${note.plainContent.substring(0, 70)}...'
-                        : note.plainContent,
+                        : note.reflect!.length > 70
+                        ? '${note.reflect!.substring(0, 70)}...'
+                        : note.reflect!,
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color:
-                          note.plainContent.isEmpty
+                          (note.reflect == null || note.reflect!.isEmpty)
                               ? Colors.grey.shade500
                               : note.isCustom
                               ? Colors.blue.shade900.withOpacity(0.8)

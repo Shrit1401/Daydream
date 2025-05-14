@@ -1,15 +1,15 @@
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
+import 'package:daydream/utils/routes.dart';
 import 'package:daydream/utils/types/types.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:daydream/utils/utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
-import 'package:daydream/components/dream_bubble_loading.dart';
 
 class SingleNote extends StatefulWidget {
   final Note note;
@@ -22,6 +22,8 @@ class SingleNote extends StatefulWidget {
 class _SingleNoteState extends State<SingleNote> {
   late final QuillController _controller;
   late Note _currentNote;
+
+  //check mark
   bool _hasUnsavedChanges = false;
   bool _isSaving = false;
   bool _showCheckmark = false;
@@ -76,11 +78,7 @@ class _SingleNoteState extends State<SingleNote> {
         });
       },
       onError: (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error in document listener: $error')),
-          );
-        }
+        //  handle error
       },
     );
 
@@ -89,16 +87,28 @@ class _SingleNoteState extends State<SingleNote> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'You can only read this note. To write your new note, write in today\'s note.',
-                style: GoogleFonts.dmSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+              content: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      'This is a generated note - write in today\'s note instead',
+                      style: GoogleFonts.dmSans(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              backgroundColor: Colors.black,
-              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: Colors.black87,
+              duration: const Duration(seconds: 1),
+              margin: const EdgeInsets.all(8),
             ),
           );
         }
@@ -293,175 +303,310 @@ class _SingleNoteState extends State<SingleNote> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
+                  child: Stack(
+                    children: [
+                      // The main editor
+                      Positioned.fill(
+                        child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Column(
-                            children: [
-                              if (widget.note.isCustom &&
-                                  widget.note.title != null)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
+                          child:
+                              _currentNote.isCustom &&
+                                      _currentNote.title != null
+                                  ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                        ),
+                                        child: InstrumentText(
+                                          _currentNote.title!,
+                                          fontSize: 24,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: QuillEditor.basic(
+                                          controller: _controller,
+                                          config: QuillEditorConfig(
+                                            placeholder:
+                                                'Write your thoughts freely...',
+                                            customStyles: DefaultStyles(
+                                              paragraph: DefaultTextBlockStyle(
+                                                GoogleFonts.dmSans(
+                                                  fontSize: 20,
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                null,
+                                              ),
+                                              h1: DefaultTextBlockStyle(
+                                                GoogleFonts.dmSans(
+                                                  fontSize: 28,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                null,
+                                              ),
+                                              h2: DefaultTextBlockStyle(
+                                                GoogleFonts.dmSans(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                null,
+                                              ),
+                                              h3: DefaultTextBlockStyle(
+                                                GoogleFonts.dmSans(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                null,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : QuillEditor.basic(
+                                    controller: _controller,
+                                    config: QuillEditorConfig(
+                                      placeholder:
+                                          'Write your thoughts freely...',
+                                      customStyles: DefaultStyles(
+                                        paragraph: DefaultTextBlockStyle(
+                                          GoogleFonts.dmSans(
+                                            fontSize: 20,
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          const HorizontalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          null,
+                                        ),
+                                        h1: DefaultTextBlockStyle(
+                                          GoogleFonts.dmSans(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          const HorizontalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          null,
+                                        ),
+                                        h2: DefaultTextBlockStyle(
+                                          GoogleFonts.dmSans(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          const HorizontalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          null,
+                                        ),
+                                        h3: DefaultTextBlockStyle(
+                                          GoogleFonts.dmSans(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          const HorizontalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          const VerticalSpacing(0, 0),
+                                          null,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  child: InstrumentText(
-                                    widget.note.title!,
-                                    fontSize: 24,
+                        ),
+                      ),
+                      // Floating toolbar at the bottom with glass effect
+                      if (!widget.note.isGenerated)
+                        Positioned(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Material(
+                                elevation: 16,
+                                borderRadius: BorderRadius.circular(18),
+                                color: Colors.white,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(18),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.4),
+                                      width: 1,
+                                    ),
                                   ),
-                                ),
-                              QuillEditor.basic(
-                                controller: _controller,
-                                config: QuillEditorConfig(
-                                  placeholder: 'Write your thoughts freely...',
-                                  customStyles: DefaultStyles(
-                                    paragraph: DefaultTextBlockStyle(
-                                      GoogleFonts.dmSans(
-                                        fontSize: 20,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      const HorizontalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      null,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
                                     ),
-                                    h1: DefaultTextBlockStyle(
-                                      GoogleFonts.dmSans(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      const HorizontalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      null,
-                                    ),
-                                    h2: DefaultTextBlockStyle(
-                                      GoogleFonts.dmSans(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      const HorizontalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      null,
-                                    ),
-                                    h3: DefaultTextBlockStyle(
-                                      GoogleFonts.dmSans(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      const HorizontalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      const VerticalSpacing(0, 0),
-                                      null,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: QuillSimpleToolbar(
+                                            controller: _controller,
+                                            config: QuillSimpleToolbarConfig(
+                                              color: Colors.white,
+                                              showBoldButton: true,
+                                              showItalicButton: false,
+                                              showUnderLineButton: false,
+                                              showStrikeThrough: false,
+                                              showListBullets: true,
+                                              showListCheck: false,
+                                              showListNumbers: false,
+                                              showHeaderStyle: true,
+                                              showClearFormat: false,
+                                              showFontFamily: false,
+                                              showSearchButton: false,
+                                              showCodeBlock: false,
+                                              showInlineCode: false,
+                                              showQuote: false,
+                                              showIndent: false,
+                                              showLink: false,
+                                              showBackgroundColorButton: false,
+                                              showUndo: false,
+                                              showRedo: false,
+                                              showColorButton: false,
+                                              showSubscript: false,
+                                              showSuperscript: false,
+                                              showFontSize: false,
+                                              multiRowsDisplay: false,
+                                              toolbarSize: 15 * 2,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(
+                                            left: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              CupertinoIcons.mic_fill,
+                                              size: 22,
+                                            ),
+                                            tooltip: 'AI Voice',
+                                            color: Colors.white,
+                                            onPressed: () {},
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                              if (!_currentNote.isGenerated)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 24.0),
-                                  child: ElevatedButton.icon(
-                                    icon: const Icon(Icons.auto_awesome),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 12,
-                                      ),
-                                    ),
-                                    label: const Text('Generate Response'),
-                                    onPressed: () async {
-                                      setState(() {
-                                        _isSaving = true;
-                                      });
-                                      try {
-                                        final generatedNote =
-                                            await generateStory(_currentNote);
-                                        // Preserve custom fields
-                                        final lockedNote = Note(
-                                          date: generatedNote.date,
-                                          content: generatedNote.content,
-                                          plainContent:
-                                              generatedNote.plainContent,
-                                          id: generatedNote.id,
-                                          isGenerated: true,
-                                          tags: generatedNote.tags,
-                                          mood: generatedNote.mood,
-                                          reflect: generatedNote.reflect,
-                                          title: _currentNote.title,
-                                          isCustom: _currentNote.isCustom,
-                                        );
-                                        await HiveLocal.saveNote(lockedNote);
-                                        final newContent =
-                                            List<Map<String, dynamic>>.from(
-                                              lockedNote.content.map(
-                                                (item) =>
-                                                    Map<String, dynamic>.from(
-                                                      item,
-                                                    ),
-                                              ),
-                                            );
-                                        final newController = QuillController(
-                                          document: Document.fromJson(
-                                            newContent,
-                                          ),
-                                          selection:
-                                              const TextSelection.collapsed(
-                                                offset: 0,
-                                              ),
-                                        );
-                                        newController.readOnly = true;
-                                        setState(() {
-                                          _currentNote = lockedNote;
-                                          _controller.dispose();
-                                          _controller = newController;
-                                          _isSaving = false;
-                                        });
-                                        if (mounted) {
-                                          Navigator.of(
-                                            context,
-                                          ).pop(); // Go back to home page
-                                        }
-                                      } catch (e) {
-                                        setState(() {
-                                          _isSaving = false;
-                                        });
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Failed to generate response: \$e',
-                                              ),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
+                if (_currentNote.isCustom && !_currentNote.isGenerated)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24.0),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.auto_awesome),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        elevation: 2,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      label: Text(
+                        _isSaving ? 'Generating...' : 'Generate Response',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          _isSaving = true;
+                        });
+                        try {
+                          final generatedNote = await generateStory(
+                            _currentNote,
+                          );
+                          // Preserve custom fields
+                          final lockedNote = Note(
+                            date: generatedNote.date,
+                            content: generatedNote.content,
+                            plainContent: generatedNote.plainContent,
+                            id: generatedNote.id,
+                            isGenerated: true,
+                            tags: generatedNote.tags,
+                            mood: generatedNote.mood,
+                            reflect: generatedNote.reflect,
+                            title: _currentNote.title,
+                            isCustom: _currentNote.isCustom,
+                          );
+                          await HiveLocal.saveNote(lockedNote);
+                          Navigator.pushNamed(context, DreamRoutes.homeRoute);
+                          // final newContent = List<Map<String, dynamic>>.from(
+                          //   lockedNote.content.map(
+                          //     (item) => Map<String, dynamic>.from(item),
+                          //   ),
+                          // );
+                          // final newController = QuillController(
+                          //   document: Document.fromJson(newContent),
+                          //   selection: const TextSelection.collapsed(offset: 0),
+                          // );
+                          // newController.readOnly = true;
+                          // final oldController = _controller;
+                          // _controller = newController;
+                          // WidgetsBinding.instance.addPostFrameCallback((_) {
+                          //   oldController.dispose();
+                          // });
+
+                          // go to the note page
+
+                          setState(() {
+                            _currentNote = lockedNote;
+                            _isSaving = false;
+                          });
+                        } catch (e) {
+                          setState(() {
+                            _isSaving = false;
+                          });
+                        }
+                      },
+                    ),
+                  ),
               ],
             ),
           ),
