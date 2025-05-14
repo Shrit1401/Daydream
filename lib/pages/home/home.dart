@@ -181,58 +181,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
-  Future<void> _createTestNote() async {
-    final TextEditingController textController = TextEditingController();
-
-    final result = await showCupertinoDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const Text('Create Test Note'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: CupertinoTextField(
-              controller: textController,
-              placeholder: 'Enter your note content',
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: const Text('Create'),
-              onPressed: () => Navigator.of(context).pop(textController.text),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null && result.isNotEmpty) {
-      final yesterday = DateTime.now().subtract(const Duration(days: 1));
-      final testNote = Note(
-        date: yesterday,
-        content: [
-          {'insert': result},
-        ],
-        plainContent: result,
-        id: _uuid.v4(),
-        isGenerated: false,
-      );
-
-      await HiveLocal.saveNote(testNote);
-      await _loadNotes();
-    }
-  }
-
   void _printAllNotes() async {
     setState(() {
       _isLoading = true;
@@ -454,13 +402,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _createTestNote();
-                                    },
-                                    child: const Text('Create Test Note'),
                                   ),
                                   CupertinoActionSheetAction(
                                     onPressed: () async {

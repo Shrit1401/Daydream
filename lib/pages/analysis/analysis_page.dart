@@ -1,4 +1,5 @@
 import 'package:daydream/components/instrument_text.dart';
+import 'package:daydream/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,7 +97,7 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   Widget _buildHeader() {
-    final bool hasEnoughNotes = _notes.length >= 5;
+    final bool hasEnoughNotes = _notes.length >= 3;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -155,11 +156,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                 onPressed:
                     hasEnoughNotes
                         ? () {
-                          // Scroll to the first section
-                          Scrollable.ensureVisible(
+                          Navigator.pushNamed(
                             context,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
+                            DreamRoutes.storyAnalysisRoute,
                           );
                         }
                         : null,
