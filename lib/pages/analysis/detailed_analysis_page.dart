@@ -8,6 +8,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:daydream/components/analysis/sin_cos_chart.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 
+class CategoryInsight {
+  final int count;
+  final String name;
+
+  CategoryInsight(this.count, this.name);
+}
+
 class DetailedAnalysisPage extends StatefulWidget {
   const DetailedAnalysisPage({super.key});
   @override
@@ -340,34 +347,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                               .toList(),
                     ),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.pink.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.pink.shade100),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.lightbulb_fill,
-                        color: Colors.pink.shade300,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Your journal shows a ${_getMoodInsight()} pattern. Consider exploring this theme further in your next entry.',
-                          style: GoogleFonts.dmSans(
-                            fontSize: 14,
-                            color: Colors.black87,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildDetailedInsightPanel(),
               ],
             ),
           ),
@@ -376,29 +356,309 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
     );
   }
 
-  String _getMoodInsight() {
-    if (_moodFrequency.isEmpty) return 'neutral';
+  Widget _buildDetailedInsightPanel() {
+    return ExpansionTile(
+      title: Text(
+        'Why You Feel This Way',
+        style: GoogleFonts.dmSerifDisplay(
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+      ),
+      leading: Icon(
+        CupertinoIcons.lightbulb_fill,
+        color: Colors.pink.shade300,
+        size: 26,
+      ),
+      backgroundColor: Colors.white,
+      collapsedBackgroundColor: Colors.white,
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInsightSection(
+          'Emotional Patterns',
+          _getEmotionalPatternInsight(),
+          CupertinoIcons.heart,
+          Colors.pink.shade300,
+        ),
+        const SizedBox(height: 24),
+        _buildInsightSection(
+          'Writing Behavior',
+          _getWritingBehaviorInsight(),
+          CupertinoIcons.pencil,
+          Colors.blue.shade300,
+        ),
+        const SizedBox(height: 24),
+        _buildInsightSection(
+          'Topic Analysis',
+          _getTopicAnalysisInsight(),
+          CupertinoIcons.tag,
+          Colors.purple.shade300,
+        ),
+        const SizedBox(height: 24),
+        _buildInsightSection(
+          'Self-Reflection Patterns',
+          _getSelfReflectionInsight(),
+          CupertinoIcons.person,
+          Colors.teal.shade300,
+        ),
+        const SizedBox(height: 20),
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Text(
+            'These insights are generated based on AI analysis of your journal entries and may evolve as you continue journaling.',
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              color: Colors.grey.shade700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
 
+  Widget _buildInsightSection(
+    String title,
+    String content,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  title,
+                  style: GoogleFonts.dmSerifDisplay(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: color.withOpacity(0.85),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            content,
+            style: GoogleFonts.dmSans(
+              fontSize: 17,
+              height: 1.6,
+              color: Colors.black87,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getEmotionalPatternInsight() {
+    if (_moodFrequency.isEmpty) return 'Not enough data to generate insights.';
+
+    // Analyze mood patterns
     final sortedMoods =
         _moodFrequency.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
-    if (sortedMoods.length >= 2) {
-      final topMood = sortedMoods[0].key;
-      final secondMood = sortedMoods[1].key;
-      final topCount = sortedMoods[0].value;
-      final secondCount = sortedMoods[1].value;
+    final topMood = sortedMoods.first.key;
+    int positiveCount = 0;
+    int negativeCount = 0;
 
-      if (topCount > secondCount * 1.5) {
-        return 'strongly $topMood';
-      } else if (topCount > secondCount) {
-        return 'moderately $topMood with some $secondMood';
-      } else {
-        return 'balanced between $topMood and $secondMood';
+    for (var entry in _moodFrequency.entries) {
+      if ([
+        'happy',
+        'excited',
+        'joyful',
+        'content',
+        'calm',
+      ].contains(entry.key.toLowerCase())) {
+        positiveCount += entry.value;
+      } else if ([
+        'sad',
+        'angry',
+        'anxious',
+        'tired',
+      ].contains(entry.key.toLowerCase())) {
+        negativeCount += entry.value;
       }
     }
 
-    return sortedMoods[0].key;
+    final totalMoods = positiveCount + negativeCount;
+    final positiveRatio = totalMoods > 0 ? positiveCount / totalMoods : 0;
+
+    if (positiveRatio > 0.7) {
+      return 'Your journal entries reveal a predominantly positive emotional state. You express $topMood feelings frequently, which suggests you\'re experiencing a period of well-being. Your emotional resilience appears strong, helping you navigate life\'s challenges while maintaining an optimistic outlook.';
+    } else if (positiveRatio > 0.4) {
+      return 'Your emotional pattern shows a balance between positive and negative states, with a slight preference for $topMood moments. This indicates healthy emotional processing - you acknowledge both joys and challenges in your life without suppressing difficult feelings.';
+    } else {
+      return 'Your entries reflect a pattern where challenging emotions like $topMood appear frequently. This period of introspection may indicate you\'re processing important life events. Remember that acknowledging these feelings is a sign of emotional awareness and the first step toward growth.';
+    }
+  }
+
+  String _getWritingBehaviorInsight() {
+    if (_notes.isEmpty) return 'Not enough data to generate insights.';
+
+    final Map<int, int> entriesByHour = {};
+    final Map<int, int> entriesByDay = {};
+    final List<int> wordCounts = [];
+
+    for (var note in _notes) {
+      final hour = note.date.hour;
+      final day = note.date.weekday;
+      final wordCount = note.plainContent.split(' ').length;
+
+      entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
+      entriesByDay[day] = (entriesByDay[day] ?? 0) + 1;
+      wordCounts.add(wordCount);
+    }
+
+    final mostActiveHour =
+        entriesByHour.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    final mostActiveDay =
+        entriesByDay.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    final avgWordCount =
+        wordCounts.isNotEmpty
+            ? wordCounts.reduce((a, b) => a + b) / wordCounts.length
+            : 0;
+
+    final timeOfDay =
+        mostActiveHour < 12
+            ? 'morning'
+            : mostActiveHour < 18
+            ? 'afternoon'
+            : 'evening';
+    final dayName = _getDayName(mostActiveDay);
+
+    if (avgWordCount > 200) {
+      return 'You tend to journal most frequently in the $timeOfDay on $dayName. Your entries are quite detailed (averaging ${avgWordCount.round()} words), suggesting you use journaling as a deep reflective practice. This thorough approach indicates you process experiences fully, which research shows promotes emotional clarity and personal growth.';
+    } else if (avgWordCount > 100) {
+      return 'Your journaling pattern shows a preference for the $timeOfDay, especially on $dayName. With moderate-length entries (around ${avgWordCount.round()} words), you balance reflection with efficiency. This consistent, focused practice suggests you value regular self-check-ins as part of your routine.';
+    } else {
+      return 'You typically journal in the $timeOfDay on $dayName with concise entries (about ${avgWordCount.round()} words). This suggests you prefer capturing quick thoughts or key moments rather than extensive reflection. This approach works well for busy schedules and for documenting life\'s highlights without requiring extensive time investment.';
+    }
+  }
+
+  String _getTopicAnalysisInsight() {
+    if (_tagFrequency.isEmpty) return 'Not enough data to generate insights.';
+
+    final sortedTags =
+        _tagFrequency.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    final topTags = sortedTags.take(3).map((e) => e.key).toList();
+    final personalTags = [
+      'family',
+      'friends',
+      'relationship',
+      'love',
+      'connection',
+    ];
+    final workTags = ['work', 'career', 'job', 'project', 'productivity'];
+    final wellnessTags = [
+      'health',
+      'fitness',
+      'meditation',
+      'exercise',
+      'wellness',
+      'self-care',
+    ];
+
+    int personalCount = 0;
+    int workCount = 0;
+    int wellnessCount = 0;
+
+    for (var entry in _tagFrequency.entries) {
+      if (personalTags.contains(entry.key.toLowerCase())) {
+        personalCount += entry.value;
+      } else if (workTags.contains(entry.key.toLowerCase())) {
+        workCount += entry.value;
+      } else if (wellnessTags.contains(entry.key.toLowerCase())) {
+        wellnessCount += entry.value;
+      }
+    }
+
+    final categories = [
+      CategoryInsight(personalCount, 'relationships and social connections'),
+      CategoryInsight(workCount, 'career and productivity'),
+      CategoryInsight(wellnessCount, 'health and self-care'),
+    ];
+
+    categories.sort((a, b) => b.count.compareTo(a.count));
+
+    return 'Your journal focuses primarily on ${topTags.join(', ')}, with a particular emphasis on ${categories.first.name}. This suggests these areas are central to your current life experience and personal identity. Your frequent reflection on these topics indicates they hold significant meaning for you and may be areas where you\'re experiencing growth, challenges, or important developments.';
+  }
+
+  String _getSelfReflectionInsight() {
+    if (_notes.isEmpty) return 'Not enough data to generate insights.';
+
+    final hasConsistentEntries = _notes.length > 5;
+    final hasVariedMoods = _moodFrequency.length > 3;
+    final hasDetailedEntries = _notes.any(
+      (note) => note.plainContent.split(' ').length > 150,
+    );
+
+    final sortedDates = _notes.map((n) => n.date).toList()..sort();
+    int maxStreak = 1;
+    int currentStreak = 1;
+
+    for (int i = 1; i < sortedDates.length; i++) {
+      final difference = sortedDates[i].difference(sortedDates[i - 1]).inDays;
+      if (difference == 1) {
+        currentStreak++;
+        maxStreak = currentStreak > maxStreak ? currentStreak : maxStreak;
+      } else {
+        currentStreak = 1;
+      }
+    }
+
+    final hasLongStreak = maxStreak >= 3;
+
+    if (hasConsistentEntries && hasVariedMoods && hasDetailedEntries) {
+      return 'Your journaling practice shows a strong commitment to self-awareness. You consistently document a range of emotional experiences with depth and nuance. This comprehensive approach to self-reflection suggests you value personal growth and emotional intelligence. Research shows this style of reflective practice correlates with enhanced psychological resilience and greater life satisfaction.';
+    } else if (hasLongStreak || hasConsistentEntries) {
+      return 'Your journaling shows a commendable consistency, with a $maxStreak-day streak at your best. This regular practice indicates you\'ve integrated self-reflection into your routine. While your entries vary in emotional depth, this consistent checking-in process helps you maintain awareness of your experiences and emotional states over time.';
+    } else {
+      return 'Your journaling pattern appears to be more spontaneous, capturing significant moments rather than following a strict schedule. This approach allows you to document meaningful experiences when they occur. Consider that even this selective journaling provides valuable insights into the moments you find most impactful in your life journey.';
+    }
   }
 
   Widget _buildStatItem(
