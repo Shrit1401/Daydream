@@ -30,6 +30,9 @@ class _SingleNoteState extends State<SingleNote> {
   Timer? _saveTimer;
   Timer? _checkmarkTimer;
 
+  //generating
+  bool _isGenerating = false;
+
   @override
   void initState() {
     super.initState();
@@ -551,12 +554,31 @@ class _SingleNoteState extends State<SingleNote> {
                         ),
                       ),
                       label: Text(
-                        _isSaving ? 'Generating...' : 'Generate Response',
+                        _isGenerating ? 'Generating...' : 'Generate Response',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () async {
+                        if (_isSaving) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please wait for the note to save',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                backgroundColor: Colors.orangeAccent,
+                                duration: const Duration(milliseconds: 500),
+                              ),
+                            );
+                            return;
+                          }
+                        }
                         setState(() {
-                          _isSaving = true;
+                          _isGenerating = true;
                         });
                         try {
                           final generatedNote = await generateStory(
@@ -597,11 +619,11 @@ class _SingleNoteState extends State<SingleNote> {
 
                           setState(() {
                             _currentNote = lockedNote;
-                            _isSaving = false;
+                            _isGenerating = false;
                           });
                         } catch (e) {
                           setState(() {
-                            _isSaving = false;
+                            _isGenerating = false;
                           });
                         }
                       },
