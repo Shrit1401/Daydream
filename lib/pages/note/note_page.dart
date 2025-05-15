@@ -516,11 +516,24 @@ class _SingleNoteState extends State<SingleNote> {
                                             ),
                                           ),
                                           child: IconButton(
-                                            icon: const Icon(
-                                              CupertinoIcons.mic_fill,
-                                              size: 22,
+                                            icon: Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                const Icon(
+                                                  CupertinoIcons.mic_fill,
+                                                  size: 22,
+                                                ),
+                                                Transform.translate(
+                                                  offset: const Offset(4, -4),
+                                                  child: const Icon(
+                                                    CupertinoIcons.star_fill,
+                                                    size: 12,
+                                                    color: Colors.amber,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            tooltip: 'AI Voice',
+                                            tooltip: 'AI Voice (Premium)',
                                             color: Colors.white,
                                             onPressed: () {},
                                           ),

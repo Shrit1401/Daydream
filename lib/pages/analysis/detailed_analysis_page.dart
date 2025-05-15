@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:daydream/components/instrument_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,6 +41,8 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   String _averageWordsPerEntry = '';
   String _mostProductiveTime = '';
   String _mostReflectiveDay = '';
+
+  final bool _isPremium = true;
 
   @override
   void initState() {
@@ -358,6 +362,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
 
   Widget _buildDetailedInsightPanel() {
     return ExpansionTile(
+      initiallyExpanded: true,
       title: Text(
         'Why You Feel This Way',
         style: GoogleFonts.dmSerifDisplay(
@@ -1675,16 +1680,184 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildStatisticsCard(),
-                    _buildMoodTrendChart(),
-                    _buildMoodPieChart(),
-                    _buildTagDistributionChart(),
-                    _buildTagCandlestickChart(),
-                    _buildWritingPatternsChart(),
-                    _buildSinCosChart(),
+                    if (_isPremium) ...[
+                      _buildStatisticsCard(),
+                      _buildMoodTrendChart(),
+                      _buildMoodPieChart(),
+                      _buildTagDistributionChart(),
+                      _buildTagCandlestickChart(),
+                      _buildWritingPatternsChart(),
+                      _buildSinCosChart(),
+                    ] else ...[
+                      _buildPremiumPromptCard(),
+                      _buildBasicStatsCard(),
+                      _buildMoodTrendChart(),
+                      _buildMoodPieChart(),
+                      _buildTagDistributionChart(),
+                    ],
                   ],
                 ),
               ),
+    );
+  }
+
+  Widget _buildBasicStatsCard() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.pink.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.chart_bar_fill,
+                        color: Colors.pink.shade300,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Simple Statistics',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    _buildStatItem(
+                      'Total Entries',
+                      _notes.length.toString(),
+                      Colors.blue.shade300,
+                      CupertinoIcons.doc_text_fill,
+                      'Your journal entries',
+                    ),
+                    _buildStatItem(
+                      'Total Words',
+                      _totalWords,
+                      Colors.orange.shade300,
+                      CupertinoIcons.text_quote,
+                      'Words written',
+                    ),
+                    _buildStatItem(
+                      'Writing Streak',
+                      _writingStreak,
+                      Colors.green.shade300,
+                      CupertinoIcons.flame_fill,
+                      'Longest streak',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumPromptCard() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.sparkles,
+                        color: Colors.purple.shade300,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Unlock Premium Features',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Get AI-powered insights and advanced analytics to better understand your journaling patterns.',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // TODO: Implement premium upgrade navigation
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade300,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Upgrade to Premium',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

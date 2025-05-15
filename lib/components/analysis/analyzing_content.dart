@@ -1,9 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
 import 'dart:math';
+import 'dart:ui' as ui;
+import 'package:share_plus/share_plus.dart';
+import 'dart:typed_data';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/analysis/why_am_i_page.dart';
@@ -45,6 +49,9 @@ class _AnalyzingContentState extends State<AnalyzingContent>
     "images/wall/sad.png",
     "images/wall/nuetral.png",
   ];
+
+  // Add GlobalKey for capturing the widget
+  final GlobalKey _globalKey = GlobalKey();
 
   @override
   void initState() {
@@ -201,6 +208,36 @@ $entriesText''';
     }
   }
 
+  // Add method to capture and share the widget
+  Future<void> _captureAndShare() async {
+    try {
+      // Capture the widget as an image
+      RenderRepaintBoundary boundary =
+          _globalKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
+      if (byteData != null) {
+        Uint8List pngBytes = byteData.buffer.asUint8List();
+
+        // Share the image
+        await Share.shareXFiles([
+          XFile.fromData(pngBytes, name: 'personality_analysis.png'),
+        ], text: 'Check out my personality analysis!');
+      }
+    } catch (e) {
+      // Handle any errors
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to share image')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -236,54 +273,57 @@ $entriesText''';
             ),
           ),
 
-        // Content
-        Positioned.fill(
-          child: Column(
-            children: [
-              const SizedBox(height: 80),
-              Column(
-                children: [
-                  FadeTransition(
-                    opacity: _topTextOpacity,
-                    child: InstrumentText(
-                      "if we describe you in words, we'd say you're",
-                      fontSize: 36,
-                      color: widget.textColorAnimation.value ?? Colors.white,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  FadeTransition(
-                    opacity: _wordOpacity,
-                    child: InstrumentText(
-                      _userDescription,
-                      fontSize: 48,
-                      color: widget.textColorAnimation.value ?? Colors.white,
-                      textAlign: TextAlign.center,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  FadeTransition(
-                    opacity: _wordOpacity,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        _funnyExplanation,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color:
-                              widget.textColorAnimation.value ?? Colors.white,
-                          letterSpacing: 0.5,
-                        ),
+        // Wrap the content in RepaintBoundary with GlobalKey
+        RepaintBoundary(
+          key: _globalKey,
+          child: Positioned.fill(
+            child: Column(
+              children: [
+                const SizedBox(height: 80),
+                Column(
+                  children: [
+                    FadeTransition(
+                      opacity: _topTextOpacity,
+                      child: InstrumentText(
+                        "if we describe you in words, we'd say you're",
+                        fontSize: 36,
+                        color: widget.textColorAnimation.value ?? Colors.white,
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(height: 20),
+                    FadeTransition(
+                      opacity: _wordOpacity,
+                      child: InstrumentText(
+                        _userDescription,
+                        fontSize: 48,
+                        color: widget.textColorAnimation.value ?? Colors.white,
+                        textAlign: TextAlign.center,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FadeTransition(
+                      opacity: _wordOpacity,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text(
+                          _funnyExplanation,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color:
+                                widget.textColorAnimation.value ?? Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
 
@@ -329,6 +369,27 @@ $entriesText''';
                     ),
                   ),
                   child: const Text('Continue'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _captureAndShare,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: BorderSide(
+                        color: Colors.black.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: const Text('Share with friends'),
                 ),
               ],
             ),

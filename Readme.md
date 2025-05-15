@@ -55,12 +55,13 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] have AI in page to generate story using openai
 - [x] overdo with the graphs section (make it more informative and useful)
 - [x] have a option to create a note, and have a badge for custom note
+- [x] make sure when user opens the word they belong make it magical with animations
+- [ ] using openai api have a premium feature to generate story
 - [ ] make it in the subscription model
 - [ ] have a cool onboarding flow
-- [x] add story analysis page (here inform user in one word what is happening in their life) and then generate story
-- [ ] having a dark theme
+- [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [ ] add a paywall inorder to access journal analysis page
 - [ ] make a website for this app and add some animation
-- [ ] add a option to share the story on social media (where they say one word about the story)
-- [ ] make sure when user opens the word they belong make it magical with animations
 - [ ] add splash screen icon and app icon
+- [ ] add a option to share the story on social media (where they say one word about the story)
+- [ ] having a dark theme
