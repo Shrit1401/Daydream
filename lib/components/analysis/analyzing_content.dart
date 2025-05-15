@@ -1,7 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
+import 'dart:math';
+
+import 'package:google_fonts/google_fonts.dart';
+import 'package:daydream/components/analysis/why_am_i_page.dart';
 
 class AnalyzingContent extends StatefulWidget {
   final Animation<Color?> textColorAnimation;
@@ -15,8 +20,9 @@ class AnalyzingContent extends StatefulWidget {
 class _AnalyzingContentState extends State<AnalyzingContent>
     with TickerProviderStateMixin {
   String _userDescription = '';
-  String _moodTag = '';
   bool _isLoading = true;
+  String? _selectedBackground;
+  String _funnyExplanation = '';
 
   // Animation controllers
   late final AnimationController _pulseController;
@@ -24,19 +30,21 @@ class _AnalyzingContentState extends State<AnalyzingContent>
   late final AnimationController _textFadeController;
   late final AnimationController _backgroundController;
 
+  final name = FirebaseAuth.instance.currentUser?.displayName;
+
   // Animations
   late final Animation<double> _topTextOpacity;
   late final Animation<double> _wordOpacity;
-  Animation<Offset> _slideAnimation = AlwaysStoppedAnimation<Offset>(
-    Offset.zero,
-  );
+  Animation<double> _backgroundOpacity = const AlwaysStoppedAnimation(0.0);
   late final List<Animation<double>> _dotAnimations;
 
   // Constants
   final int _numDots = 3;
-  final String happyImage = "images/wall/happy.png";
-  final String sadImage = "images/wall/sad.png";
-  final String neutralImage = "images/wall/nuetral.png";
+  final List<String> _backgroundImages = [
+    "images/wall/happy.png",
+    "images/wall/sad.png",
+    "images/wall/nuetral.png",
+  ];
 
   @override
   void initState() {
@@ -60,10 +68,15 @@ class _AnalyzingContentState extends State<AnalyzingContent>
     _textFadeController = AnimationController(
       duration: const Duration(milliseconds: 3000),
       vsync: this,
-    );
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _selectRandomBackground();
+        _backgroundController.forward();
+      }
+    });
 
     _backgroundController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -78,16 +91,11 @@ class _AnalyzingContentState extends State<AnalyzingContent>
       curve: const Interval(0.7, 1.0, curve: Curves.easeIn),
     );
 
-    // Override the initial _slideAnimation with the actual animation
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _textFadeController,
-        curve: const Interval(0.7, 1.0, curve: Curves.easeOutCubic),
-      ),
+    _backgroundOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _backgroundController, curve: Curves.easeIn),
     );
+
+    // Override the initial _slideAnimation with the actual animation
 
     // Initialize dot animations
     _dotAnimations = List.generate(_numDots, (index) {
@@ -99,6 +107,15 @@ class _AnalyzingContentState extends State<AnalyzingContent>
         curve: Interval(startPercent, endPercent, curve: Curves.easeInOut),
       );
     });
+  }
+
+  void _selectRandomBackground() {
+    if (mounted) {
+      setState(() {
+        _selectedBackground =
+            _backgroundImages[Random().nextInt(_backgroundImages.length)];
+      });
+    }
   }
 
   @override
@@ -120,7 +137,8 @@ class _AnalyzingContentState extends State<AnalyzingContent>
       if (generatedNotes.isEmpty) {
         setState(() {
           _userDescription = 'mysterious';
-          _moodTag = 'balanced';
+          _funnyExplanation =
+              'You\'re mysterious because even your journal is playing hide and seek!';
           _isLoading = false;
         });
         _textFadeController.forward();
@@ -148,16 +166,8 @@ Consider the patterns, recurring themes, and overall tone across all entries to 
 Journal entries:
 $entriesText''';
 
-      // Get mood tag
-      final promptTag =
-          '''Based on these journal entries, analyze the overall emotional tone and respond with exactly one word from these three options: "happy", "sad", or "balanced". Just the word, no explanation.
-
-Journal entries:
-$entriesText''';
-
-      // Get both responses
+      // Get response
       final response = await StoryGenerator.generateContent(prompt);
-      final moodResponse = await StoryGenerator.generateContent(promptTag);
 
       final cleanWord = response
           .trim()
@@ -166,14 +176,15 @@ $entriesText''';
           .toLowerCase()
           .replaceAll(RegExp(r'[^a-zA-Z]'), '');
 
-      final cleanMood = moodResponse.trim().toLowerCase().replaceAll(
-        RegExp(r'[^a-z]'),
-        '',
-      );
+      // Get funny explanation
+      final funnyPrompt =
+          '''Based on the word "$cleanWord", write a funny, one-line explanation of why someone might be described this way. Keep it under 100 characters. Your Name is $name. Example: "Shrit is a dreamer because his head is always in the clouds, and his feet are probably there too!"''';
+
+      final funnyResponse = await StoryGenerator.generateContent(funnyPrompt);
 
       setState(() {
         _userDescription = cleanWord;
-        _moodTag = cleanMood;
+        _funnyExplanation = funnyResponse.trim();
         _isLoading = false;
       });
 
@@ -182,21 +193,11 @@ $entriesText''';
     } catch (e) {
       setState(() {
         _userDescription = 'unique';
-        _moodTag = 'balanced';
+        _funnyExplanation =
+            'You\'re unique because even the AI got confused trying to describe you!';
         _isLoading = false;
       });
       _textFadeController.forward();
-    }
-  }
-
-  String get _backgroundImage {
-    switch (_moodTag) {
-      case 'happy':
-        return happyImage;
-      case 'sad':
-        return sadImage;
-      default:
-        return neutralImage;
     }
   }
 
@@ -216,16 +217,15 @@ $entriesText''';
 
     return Stack(
       children: [
-        FadeTransition(
-          opacity: _wordOpacity,
-          child: SlideTransition(
-            position: _slideAnimation,
+        if (_selectedBackground != null)
+          FadeTransition(
+            opacity: _backgroundOpacity,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.yellow,
                 borderRadius: BorderRadius.circular(30),
                 image: DecorationImage(
-                  image: AssetImage(_backgroundImage),
+                  image: AssetImage(_selectedBackground!),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                     Colors.black.withOpacity(0.3),
@@ -235,7 +235,6 @@ $entriesText''';
               ),
             ),
           ),
-        ),
 
         // Content
         Positioned.fill(
@@ -264,9 +263,75 @@ $entriesText''';
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  FadeTransition(
+                    opacity: _wordOpacity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Text(
+                        _funnyExplanation,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color:
+                              widget.textColorAnimation.value ?? Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
+          ),
+        ),
+
+        // Bottom buttons
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 40,
+          child: FadeTransition(
+            opacity: _wordOpacity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => WhyAmIPage(
+                              personalityWord: _userDescription,
+                              textColor:
+                                  widget.textColorAnimation.value ??
+                                  Colors.white,
+                            ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: BorderSide(
+                        color: Colors.black.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: const Text('Continue'),
+                ),
+              ],
+            ),
           ),
         ),
       ],

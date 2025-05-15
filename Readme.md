@@ -57,7 +57,7 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] have a option to create a note, and have a badge for custom note
 - [ ] make it in the subscription model
 - [ ] have a cool onboarding flow
-- [ ] add story analysis page (here inform user in one word what is happening in their life) and then generate story
+- [x] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [ ] having a dark theme
 - [ ] add a paywall inorder to access journal analysis page
 - [ ] make a website for this app and add some animation
