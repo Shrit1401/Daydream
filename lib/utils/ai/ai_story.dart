@@ -6,6 +6,29 @@ import 'package:http/http.dart' as http;
 class StoryGenerator {
   static const String _apiUrl = 'https://ai.hackclub.com/chat/completions';
 
+  static Future<String> generateContent(String prompt) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'messages': [
+            {'role': 'user', 'content': prompt},
+          ],
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['choices'][0]['message']['content'];
+      } else {
+        throw Exception('Failed to generate content: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error generating content: $e');
+    }
+  }
+
   static const String _systemPrompt =
       '''this is my journal entry. wyt? if it's small then i just wrote something in points, talk through it with me like a friend. don't therpaize me and give me a whole breakdown, don't repeat my thoughts with headings. really take all of this, and tell me back stuff truly as if you're an old homie.
     
