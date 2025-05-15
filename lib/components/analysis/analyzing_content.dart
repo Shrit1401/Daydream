@@ -17,8 +17,6 @@ class AnalyzingContent extends StatelessWidget {
           color: textColorAnimation.value ?? Colors.black,
           textAlign: TextAlign.center,
         ),
-        const Spacer(),
-        // Add loading indicator or progress animation here
       ],
     );
   }
