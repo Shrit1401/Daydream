@@ -24,6 +24,7 @@ class _GradientBackgroundState extends State<GradientBackground>
   final List<List<Color>> colorSets = [
     [
       Colors.white,
+
       Colors.purple.withOpacity(0.7),
       Colors.deepPurple,
       Colors.purpleAccent,
@@ -126,7 +127,7 @@ class _GradientBackgroundState extends State<GradientBackground>
                           _animation.value,
                         )!,
                   ),
-                  stops: [0.0, 0.3, 0.6, 1.0],
+                  stops: [0.0, 0.45, 0.7, 1.0],
                 ),
               ),
             );

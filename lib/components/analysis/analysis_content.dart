@@ -16,17 +16,14 @@ class AnalysisContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child:
-            hasStarted
-                ? AnalyzingContent(textColorAnimation: textColorAnimation)
-                : RevealContent(
-                  textColorAnimation: textColorAnimation,
-                  onStartAnalysis: onStartAnalysis,
-                ),
-      ),
+    return Container(
+      child:
+          hasStarted
+              ? AnalyzingContent(textColorAnimation: textColorAnimation)
+              : RevealContent(
+                textColorAnimation: textColorAnimation,
+                onStartAnalysis: onStartAnalysis,
+              ),
     );
   }
 }

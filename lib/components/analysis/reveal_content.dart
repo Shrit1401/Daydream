@@ -11,21 +11,27 @@ class RevealContent extends StatelessWidget {
     required this.textColorAnimation,
     required this.onStartAnalysis,
   });
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 80),
-        InstrumentText(
-          "Ready to reveal your story?",
-          fontSize: 36,
-          color: textColorAnimation.value ?? Colors.black,
-          textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 120),
+            InstrumentText(
+              "Ready to reveal your story?",
+              fontSize: 36,
+              color: textColorAnimation.value ?? Colors.black,
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(),
+            StartAnalysisButton(onPressed: onStartAnalysis),
+          ],
         ),
-        const Spacer(),
-        StartAnalysisButton(onPressed: onStartAnalysis),
-      ],
+      ),
     );
   }
 }
