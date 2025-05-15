@@ -42,7 +42,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   String _mostProductiveTime = '';
   String _mostReflectiveDay = '';
 
-  final bool _isPremium = true;
+  final bool _isPremium = false;
 
   @override
   void initState() {
@@ -674,7 +674,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
     String subtitle,
   ) {
     return Container(
-      // Full width on mobile, half on wide screens
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
@@ -1680,21 +1679,10 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_isPremium) ...[
-                      _buildStatisticsCard(),
-                      _buildMoodTrendChart(),
-                      _buildMoodPieChart(),
-                      _buildTagDistributionChart(),
-                      _buildTagCandlestickChart(),
-                      _buildWritingPatternsChart(),
-                      _buildSinCosChart(),
-                    ] else ...[
-                      _buildPremiumPromptCard(),
-                      _buildBasicStatsCard(),
-                      _buildMoodTrendChart(),
-                      _buildMoodPieChart(),
-                      _buildTagDistributionChart(),
-                    ],
+                    _buildBasicStatsCard(),
+                    _buildMoodTrendChart(),
+                    _buildMoodPieChart(),
+                    _buildTagDistributionChart(),
                   ],
                 ),
               ),
@@ -1770,88 +1758,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                       'Longest streak',
                     ),
                   ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPremiumPromptCard() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.purple.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.sparkles,
-                        color: Colors.purple.shade300,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Unlock Premium Features',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Get AI-powered insights and advanced analytics to better understand your journaling patterns.',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement premium upgrade navigation
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple.shade300,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Upgrade to Premium',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
