@@ -92,8 +92,7 @@ export default function Home() {
             Start Your Journey Today
           </h2>
           <p className="text-lg mb-8 text-background/80 font-[family-name:var(--font-dm-sans)]">
-            Join thousands of users who have transformed their journaling
-            experience
+            people who use daydream are cool, i guess
           </p>
           <button className="px-8 py-4 rounded-full bg-background text-foreground hover:opacity-90 cursor-pointer font-bold transition-opacity font-[family-name:var(--font-dm-sans)]">
             Download Now
