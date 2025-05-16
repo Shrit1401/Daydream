@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/postcss";
 
 :root {
   /* --background: #ffffff; */
