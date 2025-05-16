@@ -27,9 +27,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 className="px-6 py-3 rounded-full bg-foreground text-background hover:opacity-90 cursor-pointer font-bold transition-opacity font-[family-name:var(--font-dm-sans)]"
-                onClick={() => {
-                  alert("coming soon");
-                }}
+                onClick={() => {}}
               >
                 Download For iOS
               </button>
