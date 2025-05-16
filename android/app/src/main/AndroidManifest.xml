@@ -42,7 +42,4 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
-    <!-- Add these permissions for share_plus -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>

@@ -44,6 +44,56 @@ class StoryGenerator {
         
     my entry:''';
 
+  static const String _chatSystemPrompt =
+      '''You are a friendly journal companion who helps users reflect on their journal entries. You have access to their journal entry and should:
+1. Be empathetic and understanding
+2. Help them explore their thoughts and feelings
+3. Make connections they might not see
+4. Ask thoughtful questions to deepen their reflection
+5. Keep the conversation casual and friendly
+6. Don't therapize or diagnose
+7. Don't repeat their thoughts back with headings
+8. Speak in a tone similar to their writing style
+9. Remember the conversation history and refer back to previous points when relevant
+
+The journal entry you're discussing is:''';
+
+  static Future<String> chatAboutJournal(
+    String journalContent,
+    String userMessage,
+    List<Map<String, String>> conversationHistory,
+  ) async {
+    try {
+      final messages = [
+        {'role': 'system', 'content': '$_chatSystemPrompt\n\n$journalContent'},
+        ...conversationHistory,
+        {'role': 'user', 'content': userMessage},
+      ];
+
+      final client = http.Client();
+      final request =
+          http.Request('POST', Uri.parse(_apiUrl))
+            ..headers['Content-Type'] = 'application/json'
+            ..body = jsonEncode({'messages': messages, 'stream': true});
+
+      final response = await client.send(request);
+
+      if (response.statusCode == 200) {
+        final responseBody = StringBuffer();
+
+        await response.stream.transform(utf8.decoder).listen((chunk) {
+          responseBody.write(chunk);
+        }).asFuture();
+
+        return responseBody.toString();
+      } else {
+        throw Exception('Failed to get chat response: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error in chat: $e');
+    }
+  }
+
   static Future<String> generateAIStory(String prompt) async {
     try {
       final response = await http.post(

@@ -10,6 +10,7 @@ import 'dart:ui';
 import 'dart:async';
 import 'package:daydream/utils/utils.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
+import 'package:daydream/pages/chat/chat_page.dart';
 
 class SingleNote extends StatefulWidget {
   final Note note;
@@ -505,39 +506,6 @@ class _SingleNoteState extends State<SingleNote> {
                                             ),
                                           ),
                                         ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            left: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(
-                                              24,
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: Stack(
-                                              alignment: Alignment.topRight,
-                                              children: [
-                                                const Icon(
-                                                  CupertinoIcons.mic_fill,
-                                                  size: 22,
-                                                ),
-                                                Transform.translate(
-                                                  offset: const Offset(4, -4),
-                                                  child: const Icon(
-                                                    CupertinoIcons.star_fill,
-                                                    size: 12,
-                                                    color: Colors.amber,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            tooltip: 'AI Voice (Premium)',
-                                            color: Colors.white,
-                                            onPressed: () {},
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -549,6 +517,37 @@ class _SingleNoteState extends State<SingleNote> {
                     ],
                   ),
                 ),
+                if (_currentNote.isGenerated)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24.0),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        elevation: 2,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      label: const Text(
+                        'Chat with Journal',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(note: _currentNote),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 if (_currentNote.isCustom && !_currentNote.isGenerated)
                   Padding(
                     padding: const EdgeInsets.only(top: 24.0),

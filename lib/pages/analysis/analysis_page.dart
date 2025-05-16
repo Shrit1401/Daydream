@@ -7,7 +7,6 @@ import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'detailed_analysis_page.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
@@ -24,7 +23,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   List<String> _commonReflections = [];
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
   // Add dummy premium status
@@ -101,8 +99,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   Widget _buildHeader() {
-    final bool hasEnoughNotes = _notes.length >= 3;
-
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -149,9 +145,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        hasEnoughNotes
-                            ? 'We\'ve analyzed your journal entries to create a unique story of your emotional journey.'
-                            : 'Create at least 3 journal entries to unlock your personalized story analysis.',
+                        'We\'ve analyzed your journal entries to create a unique story of your emotional journey.',
                         style: GoogleFonts.dmSans(
                           fontSize: 14,
                           color: Colors.grey.shade600,
@@ -167,59 +161,25 @@ class _AnalysisPageState extends State<AnalysisPage>
                     horizontal: 20,
                     vertical: 12,
                   ),
-                  color: hasEnoughNotes ? Colors.black : Colors.grey.shade300,
+                  color: Colors.black,
                   borderRadius: BorderRadius.circular(12),
-                  onPressed:
-                      hasEnoughNotes
-                          ? () {
-                            Navigator.pushNamed(
-                              context,
-                              DreamRoutes.storyAnalysisRoute,
-                            );
-                          }
-                          : null,
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      DreamRoutes.storyAnalysisRoute,
+                    );
+                  },
                   child: Text(
                     'View Analysis',
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color:
-                          hasEnoughNotes ? Colors.white : Colors.grey.shade600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ],
             ),
-            if (!hasEnoughNotes) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.info_circle_fill,
-                      color: Colors.amber.shade700,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Keep journaling! You need ${3 - _notes.length} more ${_notes.length == 4 ? 'entry' : 'entries'} for a complete analysis.',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 13,
-                          color: Colors.amber.shade900,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ],
         ),
       ),
@@ -1651,7 +1611,6 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   @override
   Widget build(BuildContext context) {
-    final hasNotes = _notes.isNotEmpty;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F3),
       appBar: AppBar(
@@ -1663,55 +1622,115 @@ class _AnalysisPageState extends State<AnalysisPage>
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hasNotes) ...[
-              _buildHeader(),
-              _buildPersonalizedAnalysis(),
-              _buildMoodChart(),
-              _buildTagCloud(),
-              _buildReflections(),
-              _buildDetailedAnalysisCard(),
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 48.0,
-                  horizontal: 24,
+      body:
+          _notes.isEmpty
+              ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 48.0,
+                    horizontal: 24,
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        CupertinoIcons.doc_text_search,
+                        size: 64,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'No journal entries yet',
+                        style: GoogleFonts.dmSerifDisplay(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'After creating your first journal entry, wait until the end of the day to unlock detailed insights and visualizations of your emotional journey.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              )
+              : SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      CupertinoIcons.doc_text_search,
-                      size: 64,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'No journal entries yet',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Story Analysis',
+                                      style: GoogleFonts.dmSerifDisplay(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'We\'ve analyzed your journal entries to create a unique story of your emotional journey.',
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade600,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              CupertinoButton(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(12),
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    DreamRoutes.storyAnalysisRoute,
+                                  );
+                                },
+                                child: Text(
+                                  'View Analysis',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'After creating your first journal entry, wait until the end of the day to unlock detailed insights and visualizations of your emotional journey.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
+                    _buildPersonalizedAnalysis(),
+                    _buildMoodChart(),
+                    _buildTagCloud(),
+                    _buildReflections(),
+                    _buildDetailedAnalysisCard(),
                   ],
                 ),
               ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
