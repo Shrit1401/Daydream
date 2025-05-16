@@ -296,7 +296,7 @@ class _SignupPageState extends State<SignupPage> {
           );
 
           if (FirebaseAuth.instance.currentUser != null) {
-            Navigator.pushReplacementNamed(context, DreamRoutes.homeRoute);
+            Navigator.pushReplacementNamed(context, DreamRoutes.onboardRoute);
           }
         }
       } on FirebaseAuthException catch (e) {

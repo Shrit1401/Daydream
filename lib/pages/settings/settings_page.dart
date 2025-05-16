@@ -1,3 +1,4 @@
+import 'package:daydream/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +6,7 @@ import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/components/instrument_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -46,6 +48,51 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Future<void> _showDeleteAllDataConfirmationDialog(
+    BuildContext context,
+  ) async {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Delete All Data'),
+          content: const Text(
+            'Are you sure you want to delete all data from the app? This will delete all notes and app settings. This action cannot be undone.',
+          ),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () async {
+                // Delete all Hive data
+                await HiveLocal.deleteAllNotes();
+
+                // Delete all SharedPreferences data
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('All data has been deleted'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _signOut(BuildContext context) async {
     return showCupertinoDialog(
       context: context,
@@ -63,8 +110,11 @@ class SettingsPage extends StatelessWidget {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 if (context.mounted) {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    DreamRoutes.landingRoute,
+                    (route) => false,
+                  );
                 }
               },
               child: const Text('Sign Out'),
@@ -116,6 +166,25 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               onTap: () => _showDeleteConfirmationDialog(context),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_sweep, color: Colors.red[700]),
+              title: Text(
+                'Delete All Data',
+                style: GoogleFonts.dmSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red[700],
+                ),
+              ),
+              subtitle: Text(
+                'Permanently delete all notes and app settings',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+              onTap: () => _showDeleteAllDataConfirmationDialog(context),
             ),
             ListTile(
               leading: Icon(Icons.person, color: Colors.green[700]),

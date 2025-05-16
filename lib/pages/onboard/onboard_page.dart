@@ -21,7 +21,7 @@ class _OnboardPageState extends State<OnboardPage>
     {
       'title': 'yo.',
       'description':
-          'this isn\'t just another app. it\'s your space to reflect, dream, and build the life you want. let\'s get it.',
+          'not another generic app. your space to reflect, dream, and actually build the life you want. lets goooo.',
       'hasImage': false,
     },
     {
@@ -32,9 +32,9 @@ class _OnboardPageState extends State<OnboardPage>
       'image': 'images/me.png',
     },
     {
-      'title': 'will it fix everything?',
+      'title': 'magic fix?',
       'description':
-          'nah. but it\'ll help you understand yourself better. and when you do that, you can start making moves that matter.',
+          'hell no. but it\'ll help you understand your own brain better. and when you do that? you start making real moves.',
       'hasImage': false,
     },
     {

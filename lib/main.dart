@@ -1,5 +1,6 @@
 import 'package:daydream/pages/home/home.dart';
 import 'package:daydream/pages/landing_page.dart';
+import 'package:daydream/pages/onboard/onboard_home_page.dart';
 import 'package:daydream/pages/onboard/onboard_page.dart';
 import 'package:daydream/utils/firebase/firebase_options.dart';
 import 'package:daydream/utils/hive/database_service.dart';
@@ -61,27 +62,28 @@ class DaydreamApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
       ],
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(
-                child: DreamBubbleLoading(
-                  title: 'Loading your dreams...',
-                  subtitle: 'Preparing your personal space',
-                ),
-              ),
-            );
-          }
+      // home: StreamBuilder<User?>(
+      //   stream: FirebaseAuth.instance.authStateChanges(),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return const Scaffold(
+      //         body: Center(
+      //           child: DreamBubbleLoading(
+      //             title: 'Loading your dreams...',
+      //             subtitle: 'Preparing your personal space',
+      //           ),
+      //         ),
+      //       );
+      //     }
 
-          if (snapshot.hasData) {
-            return const HomePage();
-          }
+      //     if (snapshot.hasData) {
+      //       return const HomePage();
+      //     }
 
-          return onboarded ? const LandingPage() : const OnboardPage();
-        },
-      ),
+      //     return onboarded ? const LandingPage() : const OnboardPage();
+      //   },
+      // ),
+      home: OnboardHomePage(),
       routes: dreamRouters,
       navigatorObservers: [routeObserver],
     );
