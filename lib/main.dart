@@ -1,5 +1,6 @@
 import 'package:daydream/pages/home/home.dart';
 import 'package:daydream/pages/landing_page.dart';
+import 'package:daydream/pages/onboard/onboard_page.dart';
 import 'package:daydream/utils/firebase/firebase_options.dart';
 import 'package:daydream/utils/hive/database_service.dart';
 import 'package:daydream/utils/routes.dart';
@@ -10,11 +11,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import "package:flutter_localizations/flutter_localizations.dart";
 import 'package:daydream/components/dream_bubble_loading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences first
+  final pref = await SharedPreferences.getInstance();
+  final onboarded = pref.getBool('onboarded_home') ?? false;
+
+  // Then initialize other services
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await DatabaseService.init();
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -22,11 +31,13 @@ void main() async {
       statusBarBrightness: Brightness.light,
     ),
   );
-  runApp(const DaydreamApp());
+
+  runApp(DaydreamApp(onboarded: onboarded));
 }
 
 class DaydreamApp extends StatelessWidget {
-  const DaydreamApp({super.key});
+  final bool onboarded;
+  const DaydreamApp({super.key, required this.onboarded});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +79,7 @@ class DaydreamApp extends StatelessWidget {
             return const HomePage();
           }
 
-          return const LandingPage();
+          return onboarded ? const LandingPage() : const OnboardPage();
         },
       ),
       routes: dreamRouters,

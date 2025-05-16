@@ -1,4 +1,5 @@
 import 'package:daydream/components/instrument_text.dart';
+import 'package:daydream/components/premium_drawer.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/routes.dart';
 import 'package:daydream/utils/types/types.dart';
@@ -33,6 +34,7 @@ class _SingleNoteState extends State<SingleNote> {
 
   //generating
   bool _isGenerating = false;
+  final bool _isPremium = true;
 
   @override
   void initState() {
@@ -539,6 +541,18 @@ class _SingleNoteState extends State<SingleNote> {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
+                        if (!_isPremium) {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder:
+                                (context) => const PremiumDrawer(
+                                  key: ValueKey('premium_drawer'),
+                                ),
+                          );
+                          return;
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(

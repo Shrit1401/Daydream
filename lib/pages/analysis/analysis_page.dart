@@ -1,4 +1,5 @@
 import 'package:daydream/components/instrument_text.dart';
+import 'package:daydream/components/premium_drawer.dart';
 import 'package:daydream/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   // Add dummy premium status
   final bool _isPremium =
-      false; // This would normally come from a subscription service
+      true; // This would normally come from a subscription service
 
   final List<Color> _moodColors = [
     const Color(0xFFE74C3C), // Red
@@ -1461,9 +1462,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement premium upgrade navigation
-                    },
+                    onPressed: _showPremiumDrawer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple.shade300,
                       foregroundColor: Colors.white,
@@ -1607,6 +1606,16 @@ class _AnalysisPageState extends State<AnalysisPage>
       map.putIfAbsent(day, () => []).add(note);
     }
     return map;
+  }
+
+  void _showPremiumDrawer() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => const PremiumDrawer(key: ValueKey('premium_drawer')),
+    );
   }
 
   @override

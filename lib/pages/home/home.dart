@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer' as developer;
+import 'package:daydream/components/premium_drawer.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 // Create a single instance of Uuid to use throughout the file
@@ -30,6 +31,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
   bool _isLoading = true;
   bool _isRefreshing = false;
   String? _errorMessage;
+
+  final bool isPremium = true;
 
   @override
   void initState() {
@@ -237,6 +240,16 @@ class _HomePageState extends State<HomePage> with RouteAware {
     }
   }
 
+  void _showPremiumDrawer() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => const PremiumDrawer(key: ValueKey('premium_drawer')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -333,6 +346,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
                                       Navigator.pop(context);
+                                      if (!isPremium) {
+                                        _showPremiumDrawer();
+                                        return;
+                                      }
                                       showCupertinoModalPopup(
                                         context: context,
                                         builder: (BuildContext context) {
