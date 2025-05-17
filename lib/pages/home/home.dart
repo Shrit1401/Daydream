@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer' as developer;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:daydream/components/premium_drawer.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -162,26 +163,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
     if (mounted) {
       await _loadNotes();
     }
-  }
-
-  Future<void> showPrivacyDialog(BuildContext context) async {
-    await showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const Text('Privacy Policy'),
-          content: const Text(
-            'Your privacy is important to us. We do not share your data with third parties.',
-          ),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _printAllNotes() async {
@@ -423,7 +404,15 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
                                       Navigator.pop(context);
-                                      await showPrivacyDialog(context);
+                                      final url = Uri.parse(
+                                        'https://daydream.shrit.in/data',
+                                      );
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(
+                                          url,
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      }
                                     },
                                     child: const Text('Privacy'),
                                   ),

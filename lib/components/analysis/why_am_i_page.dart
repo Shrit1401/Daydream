@@ -1,3 +1,4 @@
+import 'package:daydream/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
@@ -226,9 +227,10 @@ ${note.plainContent}
                                   Center(
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        Navigator.of(
+                                        Navigator.pushNamed(
                                           context,
-                                        ).popUntil((route) => route.isFirst);
+                                          DreamRoutes.homeRoute,
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: widget.textColor,

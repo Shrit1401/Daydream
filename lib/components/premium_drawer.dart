@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumDrawer extends StatelessWidget {
-  const PremiumDrawer({Key? key}) : super(key: key);
+  const PremiumDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {

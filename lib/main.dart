@@ -1,17 +1,16 @@
+import 'package:daydream/components/dream_bubble_loading.dart';
 import 'package:daydream/pages/home/home.dart';
 import 'package:daydream/pages/landing_page.dart';
-import 'package:daydream/pages/onboard/onboard_home_page.dart';
 import 'package:daydream/pages/onboard/onboard_page.dart';
 import 'package:daydream/utils/firebase/firebase_options.dart';
 import 'package:daydream/utils/hive/database_service.dart';
 import 'package:daydream/utils/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import "package:flutter_localizations/flutter_localizations.dart";
-import 'package:daydream/components/dream_bubble_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -62,28 +61,28 @@ class DaydreamApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
       ],
-      // home: StreamBuilder<User?>(
-      //   stream: FirebaseAuth.instance.authStateChanges(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const Scaffold(
-      //         body: Center(
-      //           child: DreamBubbleLoading(
-      //             title: 'Loading your dreams...',
-      //             subtitle: 'Preparing your personal space',
-      //           ),
-      //         ),
-      //       );
-      //     }
 
-      //     if (snapshot.hasData) {
-      //       return const HomePage();
-      //     }
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: DreamBubbleLoading(
+                  title: 'Loading your dreams...',
+                  subtitle: 'Preparing your personal space',
+                ),
+              ),
+            );
+          }
 
-      //     return onboarded ? const LandingPage() : const OnboardPage();
-      //   },
-      // ),
-      home: OnboardHomePage(),
+          if (snapshot.hasData) {
+            return const HomePage();
+          }
+
+          return onboarded ? const LandingPage() : const OnboardPage();
+        },
+      ),
       routes: dreamRouters,
       navigatorObservers: [routeObserver],
     );

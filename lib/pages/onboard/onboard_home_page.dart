@@ -24,7 +24,6 @@ class _OnboardHomePageState extends State<OnboardHomePage>
   QuillController? _quillController;
   bool _isSaving = false;
   bool _showCheckmark = false;
-  bool _hasUnsavedChanges = false;
   Timer? _saveTimer;
   Timer? _checkmarkTimer;
   late SharedPreferences _prefs;
@@ -106,9 +105,7 @@ class _OnboardHomePageState extends State<OnboardHomePage>
     _quillController!.document.changes.listen((event) {
       if (!mounted) return;
 
-      setState(() {
-        _hasUnsavedChanges = true;
-      });
+      setState(() {});
     });
     setState(() {
       _showInput = true;

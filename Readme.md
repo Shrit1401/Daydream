@@ -59,6 +59,7 @@ Reflections and stories become increasingly personalized — they sound like the
 - [x] add story analysis page (here inform user in one word what is happening in their life) and then generate story
 - [x] using openai api have a premium feature to generate story
 - [ ] make it in the subscription model
+- [ ] have notification for day and night
 - [ ] have a cool onboarding flow
 - [ ] make a website for this app and add some animation
 - [ ] add splash screen icon and app icon
