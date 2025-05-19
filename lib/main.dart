@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import "package:flutter_localizations/flutter_localizations.dart";
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -35,9 +36,34 @@ void main() async {
   runApp(DaydreamApp(onboarded: onboarded));
 }
 
-class DaydreamApp extends StatelessWidget {
+class DaydreamApp extends StatefulWidget {
   final bool onboarded;
   const DaydreamApp({super.key, required this.onboarded});
+
+  @override
+  State<DaydreamApp> createState() => _DaydreamAppState();
+}
+
+class _DaydreamAppState extends State<DaydreamApp> {
+  String appGroupID = "group.homeScreenApp";
+  String iosWidgetName = "HomeWidget";
+  String dataKey = "text_from_flutter";
+
+  @override
+  void initState() {
+    super.initState();
+    HomeWidget.setAppGroupId(appGroupID);
+  }
+
+  void _onTap() async {
+    String data = "Addveta";
+    await HomeWidget.saveWidgetData(dataKey, data);
+
+    await HomeWidget.updateWidget(
+      iOSName: iosWidgetName,
+      androidName: iosWidgetName,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +103,16 @@ class DaydreamApp extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
-            return const HomePage();
+            return Scaffold(
+              body: const HomePage(),
+              floatingActionButton: FloatingActionButton(
+                onPressed: _onTap,
+                child: const Icon(Icons.add),
+              ),
+            );
           }
 
-          return onboarded ? const LandingPage() : const OnboardPage();
+          return widget.onboarded ? const LandingPage() : const OnboardPage();
         },
       ),
       routes: dreamRouters,

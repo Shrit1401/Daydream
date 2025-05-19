@@ -39,8 +39,7 @@ class _OnboardPageState extends State<OnboardPage>
     },
     {
       'title': 'one more thing',
-      'description':
-          'i\'ll send you reminders morning and night. but you gotta show up and write. it\'s worth it.',
+      'description': 'you gotta show up and write. it\'s worth it.',
       'hasImage': false,
     },
     {
