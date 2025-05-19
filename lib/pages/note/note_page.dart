@@ -11,6 +11,7 @@ import 'dart:async';
 import 'package:daydream/utils/utils.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
 import 'package:daydream/pages/chat/chat_page.dart';
+import 'package:daydream/utils/widget_service.dart';
 
 class SingleNote extends StatefulWidget {
   final Note note;
@@ -159,6 +160,9 @@ class _SingleNoteState extends State<SingleNote> {
 
         // Save to Hive
         await HiveLocal.saveNote(_currentNote);
+
+        // Update the widget
+        await WidgetService.updateWidget();
 
         if (mounted) {
           setState(() {

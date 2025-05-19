@@ -6,6 +6,7 @@ import 'package:daydream/pages/analysis/analysis_page.dart';
 import 'package:daydream/utils/ai/ai_story.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
+import 'package:daydream/utils/widget_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +110,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
         );
         await HiveLocal.saveNote(newNote);
         updatedNotes.add(newNote);
+
+        // Update widget when creating a new note
+        await WidgetService.updateWidget();
       }
 
       // Sort notes by date (newest first)

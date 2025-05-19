@@ -4,7 +4,10 @@ import 'package:daydream/pages/landing_page.dart';
 import 'package:daydream/pages/onboard/onboard_page.dart';
 import 'package:daydream/utils/firebase/firebase_options.dart';
 import 'package:daydream/utils/hive/database_service.dart';
+import 'package:daydream/utils/hive/hive_local.dart';
+import 'package:daydream/utils/types/types.dart';
 import 'package:daydream/utils/routes.dart';
+import 'package:daydream/utils/widget_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -45,24 +48,12 @@ class DaydreamApp extends StatefulWidget {
 }
 
 class _DaydreamAppState extends State<DaydreamApp> {
-  String appGroupID = "group.homeScreenApp";
-  String iosWidgetName = "HomeWidget";
-  String dataKey = "text_from_flutter";
-
   @override
   void initState() {
     super.initState();
-    HomeWidget.setAppGroupId(appGroupID);
-  }
-
-  void _onTap() async {
-    String data = "Addveta";
-    await HomeWidget.saveWidgetData(dataKey, data);
-
-    await HomeWidget.updateWidget(
-      iOSName: iosWidgetName,
-      androidName: iosWidgetName,
-    );
+    HomeWidget.setAppGroupId(WidgetService.appGroupID);
+    // Update widget when app starts
+    WidgetService.updateWidget();
   }
 
   @override
@@ -87,7 +78,6 @@ class _DaydreamAppState extends State<DaydreamApp> {
         GlobalWidgetsLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
       ],
-
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -103,13 +93,7 @@ class _DaydreamAppState extends State<DaydreamApp> {
           }
 
           if (snapshot.hasData) {
-            return Scaffold(
-              body: const HomePage(),
-              floatingActionButton: FloatingActionButton(
-                onPressed: _onTap,
-                child: const Icon(Icons.add),
-              ),
-            );
+            return const HomePage();
           }
 
           return widget.onboarded ? const LandingPage() : const OnboardPage();

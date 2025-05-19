@@ -5,35 +5,30 @@
 //  Created by Shrit Shrivastava on 20/05/25.
 //
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
-struct Provider: AppIntentTimelineProvider {
-    
-    private func getDataFromFlutter() -> SimpleEntry {
-        let userDefaults = UserDefaults(suiteName: "group.homeScreenApp")
-        let textFromFlutterApp = userDefaults?.string(forKey: "text_from_flutter") ?? "0"
-        return SimpleEntry(date: Date(), text: textFromFlutterApp)
-    }
-    
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), text: "0")
+        SimpleEntry(date: Date(), text: "No note for today")
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
         let entry = getDataFromFlutter()
-       return SimpleEntry(date: entry.date, text: entry.text)
+        completion(entry)
     }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
         let entry = getDataFromFlutter()
         let timeline = Timeline(entries: [entry], policy: .atEnd)
-        return timeline
+        completion(timeline)
     }
 
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    private func getDataFromFlutter() -> SimpleEntry {
+        let userDefaults = UserDefaults(suiteName: "group.homeScreenApp")
+        let textFromFlutterApp = userDefaults?.string(forKey: "text_from_flutter") ?? ""
+        return SimpleEntry(date: Date(), text: textFromFlutterApp)
+    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -41,17 +36,55 @@ struct SimpleEntry: TimelineEntry {
     let text: String
 }
 
-struct HomeWidgetEntryView : View {
+struct HomeWidgetEntryView: View {
     var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
+
+    static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d'th'"  // e.g., May 20th
+        return formatter
+    }()
+    static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter
+    }()
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        ZStack {
+            // Background image
+            Image("background")
+                .resizable()
+                .scaledToFill()
 
-            Text("Text:")
-            Text(entry.text)
+            VStack(alignment: .leading, spacing: 8) {
+                // Date
+                Text(Self.dateFormatter.string(from: entry.date))
+                    .font(.custom("Georgia-Italic", size: family == .systemSmall ? 30 : 40))
+                    .foregroundColor(.white)
+                    .padding(.top, 8)
+                    .padding(.bottom, 2)
+
+                // Note text
+                Text(entry.text.isEmpty ? "No note for today" : entry.text)
+                    .font(.system(size: family == .systemSmall ? 15 : 18))
+                    .foregroundColor(.white)
+                    .lineLimit(family == .systemSmall ? 6 : 12)
+                    .padding(.bottom, 4)
+
+                Spacer()
+
+                // Time
+                Text(Self.timeFormatter.string(from: entry.date).lowercased())
+                    .font(.custom("Georgia-Italic", size: family == .systemSmall ? 16 : 20))
+                    .foregroundColor(.white)
+                    .padding(.bottom, 8)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 }
 
@@ -59,30 +92,21 @@ struct HomeWidget: Widget {
     let kind: String = "HomeWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             HomeWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
         }
+        .configurationDisplayName("Today's Note")
+        .description("Shows your note for today.")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
+#Preview(as: .systemMedium) {
     HomeWidget()
 } timeline: {
-    SimpleEntry(date: .now ,text: "0")
-    SimpleEntry(date: .now, text: "0")
+    SimpleEntry(
+        date: .now,
+        text:
+            "This is a sample note for today. You can write more and see more in the medium or large widget!"
+    )
 }
