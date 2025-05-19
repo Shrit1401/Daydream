@@ -170,7 +170,6 @@ class _OnboardHomePageState extends State<OnboardHomePage>
         }
       }
     } catch (e) {
-      print('Error saving note: $e');
       if (mounted) {
         setState(() {
           _isSaving = false;
@@ -222,7 +221,9 @@ class _OnboardHomePageState extends State<OnboardHomePage>
                                     borderRadius: BorderRadius.circular(12),
                                     color: Colors.transparent,
                                     border: Border.all(
-                                      color: Colors.black.withOpacity(.05),
+                                      color: Colors.black.withValues(
+                                        alpha: .05,
+                                      ),
                                       width: 1.5,
                                     ),
                                   ),
@@ -326,8 +327,8 @@ class _OnboardHomePageState extends State<OnboardHomePage>
                                                   BorderRadius.circular(18),
                                               color: Colors.white,
                                               border: Border.all(
-                                                color: Colors.black.withOpacity(
-                                                  0.1,
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.1,
                                                 ),
                                                 width: 1,
                                               ),
@@ -510,7 +511,9 @@ class _OnboardHomePageState extends State<OnboardHomePage>
                               size: 28,
                             ),
                             style: IconButton.styleFrom(
-                              backgroundColor: Colors.black.withOpacity(0.05),
+                              backgroundColor: Colors.black.withValues(
+                                alpha: 0.05,
+                              ),
                               padding: const EdgeInsets.all(12),
                             ),
                           ),

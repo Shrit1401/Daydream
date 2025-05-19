@@ -151,7 +151,7 @@ class NoteCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orangeAccent.withOpacity(0.2),
+                            color: Colors.orangeAccent.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -177,7 +177,9 @@ class NoteCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD1B3FF).withOpacity(0.2),
+                            color: const Color(
+                              0xFFD1B3FF,
+                            ).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -216,7 +218,7 @@ class NoteCard extends StatelessWidget {
                           (note.reflect == null || note.reflect!.isEmpty)
                               ? Colors.grey.shade500
                               : note.isCustom
-                              ? Colors.blue.shade900.withOpacity(0.8)
+                              ? Colors.blue.shade900.withValues(alpha: 0.8)
                               : Colors.grey.shade800,
                     ),
                   ),

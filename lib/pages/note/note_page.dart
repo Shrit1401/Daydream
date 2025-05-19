@@ -180,7 +180,6 @@ class _SingleNoteState extends State<SingleNote> {
           });
         }
       } catch (e) {
-        print('Error saving note: $e');
         if (mounted) {
           setState(() {
             _isSaving = false;
@@ -467,7 +466,7 @@ class _SingleNoteState extends State<SingleNote> {
                                     borderRadius: BorderRadius.circular(18),
                                     color: Colors.white,
                                     border: Border.all(
-                                      color: Colors.grey.withOpacity(0.4),
+                                      color: Colors.grey.withValues(alpha: 0.4),
                                       width: 1,
                                     ),
                                   ),

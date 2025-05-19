@@ -25,25 +25,25 @@ class _GradientBackgroundState extends State<GradientBackground>
     [
       Colors.white,
 
-      Colors.purple.withOpacity(0.7),
+      Colors.purple.withValues(alpha: 0.7),
       Colors.deepPurple,
       Colors.purpleAccent,
     ],
     [
       Colors.white,
-      Color(0xFF9C27B0).withOpacity(0.7), // Purple
+      Color(0xFF9C27B0).withValues(alpha: 0.7), // Purple
       Color(0xFF673AB7), // Deep Purple
       Color(0xFF3F51B5), // Indigo
     ],
     [
       Colors.white,
-      Color(0xFFAB47BC).withOpacity(0.7), // Purple 400
+      Color(0xFFAB47BC).withValues(alpha: 0.7), // Purple 400
       Color(0xFF7E57C2), // Deep Purple 400
       Color(0xFF5E35B1), // Deep Purple 600
     ],
     [
       Colors.white,
-      Color(0xFF9575CD).withOpacity(0.7), // Deep Purple 300
+      Color(0xFF9575CD).withValues(alpha: 0.7), // Deep Purple 300
       Color(0xFF7986CB), // Indigo 300
       Color(0xFF5C6BC0), // Indigo 400
     ],

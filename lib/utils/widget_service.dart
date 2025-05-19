@@ -1,5 +1,6 @@
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
+import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,7 +43,7 @@ class WidgetService {
         androidName: iosWidgetName,
       );
     } catch (e) {
-      print('Error updating widget: $e');
+      debugPrint('Error updating widget: $e');
     }
   }
 }

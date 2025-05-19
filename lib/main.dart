@@ -4,8 +4,6 @@ import 'package:daydream/pages/landing_page.dart';
 import 'package:daydream/pages/onboard/onboard_page.dart';
 import 'package:daydream/utils/firebase/firebase_options.dart';
 import 'package:daydream/utils/hive/database_service.dart';
-import 'package:daydream/utils/hive/hive_local.dart';
-import 'package:daydream/utils/types/types.dart';
 import 'package:daydream/utils/routes.dart';
 import 'package:daydream/utils/widget_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';

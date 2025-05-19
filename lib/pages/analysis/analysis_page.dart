@@ -24,8 +24,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   List<String> _commonReflections = [];
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  DateTime? _selectedDay;
-
   // Add dummy premium status
   final bool _isPremium =
       true; // This would normally come from a subscription service
@@ -97,94 +95,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     } catch (e) {
       setState(() {});
     }
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(width: 2, color: Colors.transparent),
-        gradient: const LinearGradient(
-          colors: [Colors.purple, Colors.blue, Colors.purple],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Story Analysis',
-                        style: GoogleFonts.dmSerifDisplay(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'We\'ve analyzed your journal entries to create a unique story of your emotional journey.',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                CupertinoButton(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
-                  onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      DreamRoutes.storyAnalysisRoute,
-                    );
-                  },
-                  child: Text(
-                    'View Analysis',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildPersonalizedAnalysis() {
@@ -438,12 +348,12 @@ class _AnalysisPageState extends State<AnalysisPage>
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -456,7 +366,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.18),
+              color: color.withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 18, color: color),
@@ -577,12 +487,12 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.15), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -597,7 +507,7 @@ class _AnalysisPageState extends State<AnalysisPage>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 20, color: color),
@@ -609,7 +519,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                   style: GoogleFonts.dmSerifDisplay(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: color.withOpacity(0.85),
+                    color: color.withValues(alpha: 0.85),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -1024,7 +934,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                                   title: '',
                                   radius: 80,
                                   color: _moodColors[index % _moodColors.length]
-                                      .withOpacity(0.8),
+                                      .withValues(alpha: 0.8),
                                 );
                               }).toList(),
                           centerSpaceRadius: 50,
@@ -1158,7 +1068,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.03),
+                            color: Colors.black.withValues(alpha: 0.03),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -1277,7 +1187,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1407,7 +1317,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1496,7 +1406,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1561,51 +1471,6 @@ class _AnalysisPageState extends State<AnalysisPage>
         ],
       ),
     );
-  }
-
-  List<Note> get _notesForSelectedDay {
-    if (_selectedDay == null) return [];
-    return _notes
-        .where(
-          (note) =>
-              note.date.year == _selectedDay!.year &&
-              note.date.month == _selectedDay!.month &&
-              note.date.day == _selectedDay!.day,
-        )
-        .toList();
-  }
-
-  String _moodToEmoji(String? mood) {
-    switch (mood) {
-      case 'happy':
-      case 'joyful':
-      case 'excited':
-        return '😄';
-      case 'content':
-      case 'calm':
-        return '😊';
-      case 'neutral':
-        return '😐';
-      case 'tired':
-        return '😴';
-      case 'sad':
-        return '😢';
-      case 'angry':
-        return '😠';
-      case 'anxious':
-        return '😰';
-      default:
-        return '📝';
-    }
-  }
-
-  Map<DateTime, List<Note>> get _notesByDay {
-    final map = <DateTime, List<Note>>{};
-    for (var note in _notes) {
-      final day = DateTime(note.date.year, note.date.month, note.date.day);
-      map.putIfAbsent(day, () => []).add(note);
-    }
-    return map;
   }
 
   void _showPremiumDrawer() {

@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/utils/hive/hive_local.dart';
 import 'package:daydream/utils/types/types.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:daydream/components/analysis/sin_cos_chart.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 
 class CategoryInsight {
@@ -31,16 +30,8 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   late Animation<double> _fadeAnimation;
 
   // New statistics variables
-  String _mostFrequentMood = '';
-  String _mostFrequentTag = '';
-  String _averageMood = '';
   String _writingStreak = '';
   String _totalWords = '';
-  String _averageWordsPerEntry = '';
-  String _mostProductiveTime = '';
-  String _mostReflectiveDay = '';
-
-  final bool _isPremium = false;
 
   @override
   void initState() {
@@ -106,28 +97,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
   void _calculateStatistics() {
     if (_notes.isEmpty) return;
 
-    // Most frequent mood
-    _mostFrequentMood =
-        _moodFrequency.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-
-    // Most frequent tag
-    _mostFrequentTag =
-        _tagFrequency.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-
-    // Average mood
-    double totalMoodValue = 0;
-    int moodCount = 0;
-    for (var note in _notes) {
-      if (note.mood != null) {
-        totalMoodValue += _getMoodValue(note.mood!);
-        moodCount++;
-      }
-    }
-    _averageMood =
-        moodCount > 0
-            ? _getMoodFromValue(totalMoodValue / moodCount)
-            : 'neutral';
-
     // Writing streak
     final sortedDates = _notes.map((n) => n.date).toList()..sort();
     int currentStreak = 1;
@@ -149,8 +118,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       totalWords += note.plainContent.split(' ').length;
     }
     _totalWords = '$totalWords words';
-    _averageWordsPerEntry =
-        '${(totalWords / _notes.length).round()} words per entry';
 
     // Most productive time
     final Map<int, int> entriesByHour = {};
@@ -158,9 +125,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       final hour = note.date.hour;
       entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
     }
-    final mostProductiveHour =
-        entriesByHour.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    _mostProductiveTime = '$mostProductiveHour:00';
 
     // Most reflective day
     final Map<int, int> entriesByDay = {};
@@ -168,9 +132,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       final day = note.date.weekday;
       entriesByDay[day] = (entriesByDay[day] ?? 0) + 1;
     }
-    final mostReflectiveDayNum =
-        entriesByDay.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    _mostReflectiveDay = _getDayName(mostReflectiveDayNum);
   }
 
   double _getMoodValue(String mood) {
@@ -197,473 +158,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
     return 'sad';
   }
 
-  String _getDayName(int day) {
-    switch (day) {
-      case 1:
-        return 'Monday';
-      case 2:
-        return 'Tuesday';
-      case 3:
-        return 'Wednesday';
-      case 4:
-        return 'Thursday';
-      case 5:
-        return 'Friday';
-      case 6:
-        return 'Saturday';
-      case 7:
-        return 'Sunday';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  Widget _buildStatisticsCard() {
-    final isWide = MediaQuery.of(context).size.width > 600;
-    final statItems = [
-      _buildStatItem(
-        'Emotional Profile',
-        _mostFrequentMood,
-        Colors.pink.shade300,
-        CupertinoIcons.heart_fill,
-        'Your dominant emotional state',
-      ),
-      _buildStatItem(
-        'Primary Theme',
-        _mostFrequentTag,
-        Colors.blue.shade300,
-        CupertinoIcons.tag_fill,
-        'Most recurring topic',
-      ),
-      _buildStatItem(
-        'Mood Balance',
-        _averageMood,
-        Colors.purple.shade300,
-        CupertinoIcons.chart_bar_alt_fill,
-        'Your emotional equilibrium',
-      ),
-      _buildStatItem(
-        'Consistency',
-        _writingStreak,
-        Colors.green.shade300,
-        CupertinoIcons.flame_fill,
-        'Longest writing streak',
-      ),
-      _buildStatItem(
-        'Total Journey',
-        _totalWords,
-        Colors.orange.shade300,
-        CupertinoIcons.doc_text_fill,
-        'Words of self-reflection',
-      ),
-      _buildStatItem(
-        'Depth',
-        _averageWordsPerEntry,
-        Colors.teal.shade300,
-        CupertinoIcons.text_quote,
-        'Average entry length',
-      ),
-      _buildStatItem(
-        'Peak Hours',
-        _mostProductiveTime,
-        Colors.indigo.shade300,
-        CupertinoIcons.clock_fill,
-        'Most productive time',
-      ),
-      _buildStatItem(
-        'Reflection Day',
-        _mostReflectiveDay,
-        Colors.amber.shade300,
-        CupertinoIcons.calendar,
-        'Most thoughtful day',
-      ),
-    ];
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.pink.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.sparkles,
-                        color: Colors.pink.shade300,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'AI-Powered Insights',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                isWide
-                    ? Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children:
-                          statItems
-                              .map(
-                                (item) => SizedBox(
-                                  width:
-                                      (MediaQuery.of(context).size.width - 88) /
-                                      2,
-                                  child: item,
-                                ),
-                              )
-                              .toList(),
-                    )
-                    : Column(
-                      children:
-                          statItems
-                              .map(
-                                (item) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 20),
-                                  child: item,
-                                ),
-                              )
-                              .toList(),
-                    ),
-                const SizedBox(height: 8),
-                _buildDetailedInsightPanel(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailedInsightPanel() {
-    return ExpansionTile(
-      initiallyExpanded: true,
-      title: Text(
-        'Why You Feel This Way',
-        style: GoogleFonts.dmSerifDisplay(
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          color: Colors.black87,
-        ),
-      ),
-      leading: Icon(
-        CupertinoIcons.lightbulb_fill,
-        color: Colors.pink.shade300,
-        size: 26,
-      ),
-      backgroundColor: Colors.white,
-      collapsedBackgroundColor: Colors.white,
-      childrenPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      expandedCrossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInsightSection(
-          'Emotional Patterns',
-          _getEmotionalPatternInsight(),
-          CupertinoIcons.heart,
-          Colors.pink.shade300,
-        ),
-        const SizedBox(height: 24),
-        _buildInsightSection(
-          'Writing Behavior',
-          _getWritingBehaviorInsight(),
-          CupertinoIcons.pencil,
-          Colors.blue.shade300,
-        ),
-        const SizedBox(height: 24),
-        _buildInsightSection(
-          'Topic Analysis',
-          _getTopicAnalysisInsight(),
-          CupertinoIcons.tag,
-          Colors.purple.shade300,
-        ),
-        const SizedBox(height: 24),
-        _buildInsightSection(
-          'Self-Reflection Patterns',
-          _getSelfReflectionInsight(),
-          CupertinoIcons.person,
-          Colors.teal.shade300,
-        ),
-        const SizedBox(height: 20),
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(top: 10),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Text(
-            'These insights are generated based on AI analysis of your journal entries and may evolve as you continue journaling.',
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: Colors.grey.shade700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInsightSection(
-    String title,
-    String content,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.15), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 20, color: color),
-              ),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(
-                  title,
-                  style: GoogleFonts.dmSerifDisplay(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: color.withOpacity(0.85),
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            content,
-            style: GoogleFonts.dmSans(
-              fontSize: 17,
-              height: 1.6,
-              color: Colors.black87,
-              letterSpacing: 0.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getEmotionalPatternInsight() {
-    if (_moodFrequency.isEmpty) return 'Not enough data to generate insights.';
-
-    // Analyze mood patterns
-    final sortedMoods =
-        _moodFrequency.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-
-    final topMood = sortedMoods.first.key;
-    int positiveCount = 0;
-    int negativeCount = 0;
-
-    for (var entry in _moodFrequency.entries) {
-      if ([
-        'happy',
-        'excited',
-        'joyful',
-        'content',
-        'calm',
-      ].contains(entry.key.toLowerCase())) {
-        positiveCount += entry.value;
-      } else if ([
-        'sad',
-        'angry',
-        'anxious',
-        'tired',
-      ].contains(entry.key.toLowerCase())) {
-        negativeCount += entry.value;
-      }
-    }
-
-    final totalMoods = positiveCount + negativeCount;
-    final positiveRatio = totalMoods > 0 ? positiveCount / totalMoods : 0;
-
-    if (positiveRatio > 0.7) {
-      return 'Your journal entries reveal a predominantly positive emotional state. You express $topMood feelings frequently, which suggests you\'re experiencing a period of well-being. Your emotional resilience appears strong, helping you navigate life\'s challenges while maintaining an optimistic outlook.';
-    } else if (positiveRatio > 0.4) {
-      return 'Your emotional pattern shows a balance between positive and negative states, with a slight preference for $topMood moments. This indicates healthy emotional processing - you acknowledge both joys and challenges in your life without suppressing difficult feelings.';
-    } else {
-      return 'Your entries reflect a pattern where challenging emotions like $topMood appear frequently. This period of introspection may indicate you\'re processing important life events. Remember that acknowledging these feelings is a sign of emotional awareness and the first step toward growth.';
-    }
-  }
-
-  String _getWritingBehaviorInsight() {
-    if (_notes.isEmpty) return 'Not enough data to generate insights.';
-
-    final Map<int, int> entriesByHour = {};
-    final Map<int, int> entriesByDay = {};
-    final List<int> wordCounts = [];
-
-    for (var note in _notes) {
-      final hour = note.date.hour;
-      final day = note.date.weekday;
-      final wordCount = note.plainContent.split(' ').length;
-
-      entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
-      entriesByDay[day] = (entriesByDay[day] ?? 0) + 1;
-      wordCounts.add(wordCount);
-    }
-
-    final mostActiveHour =
-        entriesByHour.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    final mostActiveDay =
-        entriesByDay.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    final avgWordCount =
-        wordCounts.isNotEmpty
-            ? wordCounts.reduce((a, b) => a + b) / wordCounts.length
-            : 0;
-
-    final timeOfDay =
-        mostActiveHour < 12
-            ? 'morning'
-            : mostActiveHour < 18
-            ? 'afternoon'
-            : 'evening';
-    final dayName = _getDayName(mostActiveDay);
-
-    if (avgWordCount > 200) {
-      return 'You tend to journal most frequently in the $timeOfDay on $dayName. Your entries are quite detailed (averaging ${avgWordCount.round()} words), suggesting you use journaling as a deep reflective practice. This thorough approach indicates you process experiences fully, which research shows promotes emotional clarity and personal growth.';
-    } else if (avgWordCount > 100) {
-      return 'Your journaling pattern shows a preference for the $timeOfDay, especially on $dayName. With moderate-length entries (around ${avgWordCount.round()} words), you balance reflection with efficiency. This consistent, focused practice suggests you value regular self-check-ins as part of your routine.';
-    } else {
-      return 'You typically journal in the $timeOfDay on $dayName with concise entries (about ${avgWordCount.round()} words). This suggests you prefer capturing quick thoughts or key moments rather than extensive reflection. This approach works well for busy schedules and for documenting life\'s highlights without requiring extensive time investment.';
-    }
-  }
-
-  String _getTopicAnalysisInsight() {
-    if (_tagFrequency.isEmpty) return 'Not enough data to generate insights.';
-
-    final sortedTags =
-        _tagFrequency.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-
-    final topTags = sortedTags.take(3).map((e) => e.key).toList();
-    final personalTags = [
-      'family',
-      'friends',
-      'relationship',
-      'love',
-      'connection',
-    ];
-    final workTags = ['work', 'career', 'job', 'project', 'productivity'];
-    final wellnessTags = [
-      'health',
-      'fitness',
-      'meditation',
-      'exercise',
-      'wellness',
-      'self-care',
-    ];
-
-    int personalCount = 0;
-    int workCount = 0;
-    int wellnessCount = 0;
-
-    for (var entry in _tagFrequency.entries) {
-      if (personalTags.contains(entry.key.toLowerCase())) {
-        personalCount += entry.value;
-      } else if (workTags.contains(entry.key.toLowerCase())) {
-        workCount += entry.value;
-      } else if (wellnessTags.contains(entry.key.toLowerCase())) {
-        wellnessCount += entry.value;
-      }
-    }
-
-    final categories = [
-      CategoryInsight(personalCount, 'relationships and social connections'),
-      CategoryInsight(workCount, 'career and productivity'),
-      CategoryInsight(wellnessCount, 'health and self-care'),
-    ];
-
-    categories.sort((a, b) => b.count.compareTo(a.count));
-
-    return 'Your journal focuses primarily on ${topTags.join(', ')}, with a particular emphasis on ${categories.first.name}. This suggests these areas are central to your current life experience and personal identity. Your frequent reflection on these topics indicates they hold significant meaning for you and may be areas where you\'re experiencing growth, challenges, or important developments.';
-  }
-
-  String _getSelfReflectionInsight() {
-    if (_notes.isEmpty) return 'Not enough data to generate insights.';
-
-    final hasConsistentEntries = _notes.length > 5;
-    final hasVariedMoods = _moodFrequency.length > 3;
-    final hasDetailedEntries = _notes.any(
-      (note) => note.plainContent.split(' ').length > 150,
-    );
-
-    final sortedDates = _notes.map((n) => n.date).toList()..sort();
-    int maxStreak = 1;
-    int currentStreak = 1;
-
-    for (int i = 1; i < sortedDates.length; i++) {
-      final difference = sortedDates[i].difference(sortedDates[i - 1]).inDays;
-      if (difference == 1) {
-        currentStreak++;
-        maxStreak = currentStreak > maxStreak ? currentStreak : maxStreak;
-      } else {
-        currentStreak = 1;
-      }
-    }
-
-    final hasLongStreak = maxStreak >= 3;
-
-    if (hasConsistentEntries && hasVariedMoods && hasDetailedEntries) {
-      return 'Your journaling practice shows a strong commitment to self-awareness. You consistently document a range of emotional experiences with depth and nuance. This comprehensive approach to self-reflection suggests you value personal growth and emotional intelligence. Research shows this style of reflective practice correlates with enhanced psychological resilience and greater life satisfaction.';
-    } else if (hasLongStreak || hasConsistentEntries) {
-      return 'Your journaling shows a commendable consistency, with a $maxStreak-day streak at your best. This regular practice indicates you\'ve integrated self-reflection into your routine. While your entries vary in emotional depth, this consistent checking-in process helps you maintain awareness of your experiences and emotional states over time.';
-    } else {
-      return 'Your journaling pattern appears to be more spontaneous, capturing significant moments rather than following a strict schedule. This approach allows you to document meaningful experiences when they occur. Consider that even this selective journaling provides valuable insights into the moments you find most impactful in your life journey.';
-    }
-  }
-
   Widget _buildStatItem(
     String label,
     String value,
@@ -675,12 +169,12 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -693,7 +187,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.18),
+              color: color.withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 18, color: color),
@@ -792,13 +286,13 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                         verticalInterval: 1,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             strokeWidth: 1,
                           );
                         },
                         getDrawingVerticalLine: (value) {
                           return FlLine(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             strokeWidth: 1,
                           );
                         },
@@ -850,7 +344,9 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                       ),
                       borderData: FlBorderData(
                         show: true,
-                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                        border: Border.all(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                        ),
                       ),
                       lineBarsData: [
                         LineChartBarData(
@@ -1217,7 +713,9 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                       ),
                       borderData: FlBorderData(
                         show: true,
-                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                        border: Border.all(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                        ),
                       ),
                       gridData: FlGridData(
                         show: true,
@@ -1225,7 +723,7 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                         horizontalInterval: 1,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             strokeWidth: 1,
                           );
                         },
@@ -1264,328 +762,6 @@ class _DetailedAnalysisPageState extends State<DetailedAnalysisPage>
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTagCandlestickChart() {
-    if (_tagFrequency.isEmpty) return const SizedBox.shrink();
-
-    final sortedTags =
-        _tagFrequency.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-    final topTags = sortedTags.take(5).toList();
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.cyan.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.chart_bar_fill,
-                        color: Colors.cyan.shade300,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Theme Intensity',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  height: 200,
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: topTags.first.value.toDouble() * 1.2,
-                      barTouchData: BarTouchData(
-                        enabled: true,
-                        touchTooltipData: BarTouchTooltipData(
-                          tooltipBgColor: Colors.cyan.shade100,
-                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                            return BarTooltipItem(
-                              '${topTags[groupIndex].key}\n',
-                              GoogleFonts.dmSans(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: '${rod.toY.toInt()}',
-                                  style: GoogleFonts.dmSans(
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      titlesData: FlTitlesData(
-                        show: true,
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, meta) {
-                              if (value.toInt() >= topTags.length) {
-                                return const SizedBox.shrink();
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  topTags[value.toInt()].key,
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 10,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      borderData: FlBorderData(show: false),
-                      gridData: FlGridData(show: false),
-                      barGroups: List.generate(
-                        topTags.length,
-                        (index) => BarChartGroupData(
-                          x: index,
-                          barRods: [
-                            BarChartRodData(
-                              toY: topTags[index].value.toDouble(),
-                              color: Colors.cyan.shade300,
-                              width: 20,
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(6),
-                              ),
-                              backDrawRodData: BackgroundBarChartRodData(
-                                show: true,
-                                toY: topTags.first.value.toDouble(),
-                                color: Colors.cyan.shade50,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWritingPatternsChart() {
-    if (_notes.isEmpty) return const SizedBox.shrink();
-
-    final Map<int, int> entriesByHour = {};
-    for (var note in _notes) {
-      final hour = note.date.hour;
-      entriesByHour[hour] = (entriesByHour[hour] ?? 0) + 1;
-    }
-
-    // Find the maximum value for scaling
-    final maxValue = entriesByHour.values.fold(
-      0,
-      (max, value) => value > max ? value : max,
-    );
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.clock_fill,
-                        color: Colors.amber.shade300,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Writing Patterns',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  height: 400,
-                  child: RadarChart(
-                    RadarChartData(
-                      dataSets: [
-                        RadarDataSet(
-                          dataEntries: List.generate(
-                            24,
-                            (index) => RadarEntry(
-                              value:
-                                  (entriesByHour[index]?.toDouble() ?? 0) /
-                                  maxValue *
-                                  5,
-                            ),
-                          ),
-                          fillColor: Colors.amber.shade300.withOpacity(0.3),
-                          borderColor: Colors.amber.shade300,
-                          borderWidth: 2,
-                        ),
-                      ],
-                      titleTextStyle: GoogleFonts.dmSans(
-                        fontSize: 14,
-                        color: Colors.grey.shade800,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      tickCount: 5,
-                      ticksTextStyle: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      getTitle: (index, angle) {
-                        final hour = index;
-                        final period = hour < 12 ? 'AM' : 'PM';
-                        final displayHour =
-                            hour == 0
-                                ? 12
-                                : hour > 12
-                                ? hour - 12
-                                : hour;
-                        return RadarChartTitle(
-                          text: '$displayHour$period',
-                          angle: angle,
-                        );
-                      },
-                      titlePositionPercentageOffset: 0.2,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    'Your writing activity throughout the day',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSinCosChart() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.graph_circle,
-                        color: Colors.green.shade300,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Sin Cos Graph',
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                const SinCosChart(),
               ],
             ),
           ),

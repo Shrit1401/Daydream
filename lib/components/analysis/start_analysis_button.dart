@@ -16,7 +16,7 @@ class StartAnalysisButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 32,
               spreadRadius: 4,
               offset: const Offset(0, 6),

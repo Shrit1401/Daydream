@@ -230,7 +230,7 @@ $entriesText''';
                   image: AssetImage(_selectedBackground!),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.3),
+                    Colors.black.withValues(alpha: 0.3),
                     BlendMode.darken,
                   ),
                 ),
@@ -328,7 +328,7 @@ $entriesText''';
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                       side: BorderSide(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -367,7 +367,7 @@ $entriesText''';
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.purple.withOpacity(0.3),
+                          Colors.purple.withValues(alpha: 0.3),
                           Colors.transparent,
                         ],
                       ),
@@ -382,7 +382,7 @@ $entriesText''';
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),

@@ -160,7 +160,7 @@ ${note.plainContent}
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: widget.textColor.withOpacity(0.3),
+                              color: widget.textColor.withValues(alpha: 0.3),
                               width: 2,
                             ),
                           ),
@@ -176,7 +176,7 @@ ${note.plainContent}
                           'Analyzing your personality...',
                           style: GoogleFonts.dmSans(
                             fontSize: 16,
-                            color: widget.textColor.withOpacity(0.8),
+                            color: widget.textColor.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -196,10 +196,12 @@ ${note.plainContent}
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: widget.textColor.withOpacity(0.1),
+                                color: widget.textColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: widget.textColor.withOpacity(0.2),
+                                  color: widget.textColor.withValues(
+                                    alpha: 0.2,
+                                  ),
                                   width: 1,
                                 ),
                               ),
@@ -211,7 +213,9 @@ ${note.plainContent}
                                     style: GoogleFonts.dmSans(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: widget.textColor.withOpacity(0.7),
+                                      color: widget.textColor.withValues(
+                                        alpha: 0.7,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),

@@ -42,7 +42,7 @@ struct HomeWidgetEntryView: View {
 
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM d'th'"  // e.g., May 20th
+        formatter.dateFormat = "d'th' MMMM"  // e.g., 20th May
         return formatter
     }()
     static let timeFormatter: DateFormatter = {

@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:daydream/components/dream_bubble_loading.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:developer' as developer;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:daydream/components/premium_drawer.dart';
 
@@ -144,6 +143,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
     // Fetch the latest note from Hive before navigating
     final latestNote = await HiveLocal.getNoteById(note.id) ?? note;
 
+    if (!mounted) return;
     await Navigator.push<Note>(
       context,
       PageRouteBuilder(
@@ -166,62 +166,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
     if (mounted) {
       await _loadNotes();
-    }
-  }
-
-  void _printAllNotes() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final notes = await HiveLocal.getAllNotes();
-      developer.log('===== ALL NOTES =====');
-      developer.log('Total notes: ${notes.length}');
-
-      for (var i = 0; i < notes.length; i++) {
-        final note = notes[i];
-        developer.log('Note ${i + 1}:');
-        developer.log('  ID: ${note.id}');
-        developer.log('  Date: ${note.date}');
-        developer.log('  Title: ${note.title ?? 'No title'}');
-        developer.log('  Content length: ${note.content.length} elements');
-        developer.log(
-          '  Plain content: ${note.plainContent.length > 50 ? '${note.plainContent.substring(0, 50)}...' : note.plainContent}',
-        );
-        developer.log('  Is generated: ${note.isGenerated}');
-        developer.log('  Is custom: ${note.isCustom ?? false}');
-        developer.log('-------------------');
-      }
-
-      developer.log('===== END OF NOTES =====');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Printed ${notes.length} notes to console',
-            style: GoogleFonts.dmSans(),
-          ),
-          backgroundColor: Colors.black,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      developer.log('Error printing notes: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error printing notes: $e',
-            style: GoogleFonts.dmSans(),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -281,10 +225,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: .05),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -303,7 +247,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                               Icon(
                                 CupertinoIcons.chevron_down,
                                 size: 16,
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                               ),
                             ],
                           ),
@@ -379,11 +323,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                                     await HiveLocal.saveNote(
                                                       newNote,
                                                     );
-                                                    if (mounted) {
-                                                      Navigator.pop(context);
-                                                      await _loadNotes();
-                                                      _navigateToNote(newNote);
-                                                    }
+                                                    if (!mounted) return;
+                                                    Navigator.pop(context);
+                                                    await _loadNotes();
+                                                    _navigateToNote(newNote);
                                                   }
                                                 },
                                               ),
@@ -575,7 +518,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                           backgroundColor: Colors.transparent,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                Colors.black.withOpacity(0.2),
+                                                Colors.black.withValues(
+                                                  alpha: 0.2,
+                                                ),
                                               ),
                                         ),
                                       ),
@@ -597,7 +542,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
+                    color: Colors.black.withValues(alpha: 0.12),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
